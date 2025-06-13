@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct nonogramSolver_July2025App: App {
+struct NonogramSolverJuly2025App: App {
     var body: some Scene {
         WindowGroup {
             SplashView()

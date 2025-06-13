@@ -11,7 +11,7 @@ This document describes the layout of the repository and the purpose of each top
 - `nonogramSolver-July2025UITests/` – UI test target.
 
 ## `nonogramSolver-July2025/` Source Files
-- `nonogramSolver_July2025App.swift` – Application entry point. Creates the window and shows `SplashView`.
+- `nonogramSolver_July2025App.swift` – Application entry point. The main struct `NonogramSolverJuly2025App` creates the window and shows `SplashView`.
 - `SplashView.swift` – Loading view that asynchronously builds the `GameManager` using `GameManagerBuilder` before showing `ContentView`.
 - `GameManagerBuilder.swift` – Builder struct that creates a `GameManager` and loads the saved state.
 - `GameManager.swift` – `@MainActor` observable object that owns the puzzle grid, clue arrays, and persistence logic.

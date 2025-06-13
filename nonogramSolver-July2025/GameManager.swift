@@ -6,21 +6,22 @@ class GameManager: ObservableObject {
     @Published var rowClues: [[Int]]
     @Published var columnClues: [[Int]]
 
-    private let store = GameStateStore()
+    private let store: GameStateStoring
 
-    init(grid: PuzzleGrid, rowClues: [[Int]], columnClues: [[Int]]) {
+    init(grid: PuzzleGrid, rowClues: [[Int]], columnClues: [[Int]], store: GameStateStoring) {
         self.grid = grid
         self.rowClues = rowClues
         self.columnClues = columnClues
+        self.store = store
     }
 
-    convenience init() {
+    convenience init(store: GameStateStoring = GameStateStore()) {
         let rows = 20
         let columns = 15
         let grid = PuzzleGrid(rows: rows, columns: columns)
         let rowClues = Array(repeating: [Int](), count: rows)
         let columnClues = Array(repeating: [Int](), count: columns)
-        self.init(grid: grid, rowClues: rowClues, columnClues: columnClues)
+        self.init(grid: grid, rowClues: rowClues, columnClues: columnClues, store: store)
     }
 
     func load() async {
