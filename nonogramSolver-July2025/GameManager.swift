@@ -18,8 +18,8 @@ class GameManager: ObservableObject {
         let rows = 20
         let columns = 15
         let grid = PuzzleGrid(rows: rows, columns: columns)
-        let rowClues = Array(repeating: [], count: rows)
-        let columnClues = Array(repeating: [], count: columns)
+        let rowClues = Array(repeating: [Int](), count: rows)
+        let columnClues = Array(repeating: [Int](), count: columns)
         self.init(grid: grid, rowClues: rowClues, columnClues: columnClues)
     }
 
@@ -38,8 +38,8 @@ class GameManager: ObservableObject {
 
     func set(rows: Int, columns: Int) {
         grid = PuzzleGrid(rows: rows, columns: columns)
-        rowClues = Array(repeating: [], count: rows)
-        columnClues = Array(repeating: [], count: columns)
+        rowClues = Array(repeating: [Int](), count: rows)
+        columnClues = Array(repeating: [Int](), count: columns)
         Task { await save() }
     }
 
