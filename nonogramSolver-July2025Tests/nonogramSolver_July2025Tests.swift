@@ -1,17 +1,24 @@
-//
-//  nonogramSolver_July2025Tests.swift
-//  nonogramSolver-July2025Tests
-//
-//  Created by Gabriel Alan Collins on 2025-06-13.
-//
-
-import Testing
+import XCTest
 @testable import nonogramSolver_July2025
 
-struct nonogramSolver_July2025Tests {
+final class nonogramSolver_July2025Tests: XCTestCase {
 
-    @Test func example() async throws {
-        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+    func testTileCycle() async {
+        let manager = GameManager()
+        manager.tap(row: 0, column: 0)
+        XCTAssertEqual(manager.grid.tiles[0][0], .filled)
+        manager.tap(row: 0, column: 0)
+        XCTAssertEqual(manager.grid.tiles[0][0], .empty)
+        manager.tap(row: 0, column: 0)
+        XCTAssertEqual(manager.grid.tiles[0][0], .unmarked)
     }
 
+    func testPersistence() async throws {
+        let manager = GameManager()
+        manager.tap(row: 0, column: 0)
+        await manager.save()
+        let newManager = GameManager()
+        await newManager.load()
+        XCTAssertEqual(newManager.grid.tiles[0][0], manager.grid.tiles[0][0])
+    }
 }

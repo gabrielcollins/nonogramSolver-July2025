@@ -1,21 +1,44 @@
-//
-//  ContentView.swift
-//  nonogramSolver-July2025
-//
-//  Created by Gabriel Alan Collins on 2025-06-13.
-//
-
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var manager = GameManager()
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationStack {
+            VStack {
+                NonogramGridView(manager: manager)
+                ClueEntryView(manager: manager)
+            }
+            .padding()
+            .navigationTitle("Nonogram Solver")
+            .toolbar {
+                ToolbarItemGroup(placement: .navigation) {
+                    Picker("Rows", selection: Binding(
+                        get: { manager.grid.rows },
+                        set: { manager.set(rows: $0, columns: manager.grid.columns) }
+                    )) {
+                        ForEach(Array(stride(from: 5, through: 40, by: 5)), id: \.self) { value in
+                            Text("\(value)").tag(value)
+                        }
+                    }
+                    Picker("Columns", selection: Binding(
+                        get: { manager.grid.columns },
+                        set: { manager.set(rows: manager.grid.rows, columns: $0) }
+                    )) {
+                        ForEach(Array(stride(from: 5, through: 40, by: 5)), id: \.self) { value in
+                            Text("\(value)").tag(value)
+                        }
+                    }
+                }
+                ToolbarItemGroup(placement: .automatic) {
+                    Button("Auto Solve") { manager.autoSolve() }
+                    Button("Step Solve") { manager.stepSolve() }
+                }
+            }
         }
-        .padding()
+        .task {
+            await manager.load()
+        }
     }
 }
 
