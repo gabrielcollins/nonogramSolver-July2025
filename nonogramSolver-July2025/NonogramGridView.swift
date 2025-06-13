@@ -235,12 +235,12 @@ struct NonogramGridView: View {
     }
     
     func bottomBorderWidth(row: Int) -> CGFloat {
-        // Thick border after every 5th row (positions 4, 9, 14, etc.) and last row (outer edge)
-        if (row + 1) % 5 == 0 {
+        // Always thick for last row (outer edge)
+        if row == manager.grid.rows - 1 {
             return GridLineConfig.thickLineWidth
         }
-        // Check if this is the last row (outer edge)
-        if row == manager.grid.rows - 1 {
+        // Thick border after every 5th row (positions 4, 9, 14, etc.)
+        if (row + 1) % 5 == 0 {
             return GridLineConfig.thickLineWidth
         }
         return GridLineConfig.thinLineWidth
@@ -255,12 +255,12 @@ struct NonogramGridView: View {
     }
     
     func rightBorderWidth(column: Int) -> CGFloat {
-        // Thick border after every 5th column (positions 4, 9, 14, etc.) and last column (outer edge)
-        if (column + 1) % 5 == 0 {
+        // Always thick for last column (outer edge)
+        if column == manager.grid.columns - 1 {
             return GridLineConfig.thickLineWidth
         }
-        // Check if this is the last column (outer edge)
-        if column == manager.grid.columns - 1 {
+        // Thick border after every 5th column (positions 4, 9, 14, etc.)
+        if (column + 1) % 5 == 0 {
             return GridLineConfig.thickLineWidth
         }
         return GridLineConfig.thinLineWidth
