@@ -1,0 +1,556 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		535237562DFC96B000EC3443 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5352373F2DFC96AE00EC3443 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 535237462DFC96AE00EC3443;
+			remoteInfo = "nonogramSolver-July2025";
+		};
+		535237602DFC96B000EC3443 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5352373F2DFC96AE00EC3443 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 535237462DFC96AE00EC3443;
+			remoteInfo = "nonogramSolver-July2025";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		535237472DFC96AE00EC3443 /* nonogramSolver-July2025.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "nonogramSolver-July2025.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		535237552DFC96B000EC3443 /* nonogramSolver-July2025Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "nonogramSolver-July2025Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5352375F2DFC96B000EC3443 /* nonogramSolver-July2025UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "nonogramSolver-July2025UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		535237492DFC96AE00EC3443 /* nonogramSolver-July2025 */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "nonogramSolver-July2025";
+			sourceTree = "<group>";
+		};
+		535237582DFC96B000EC3443 /* nonogramSolver-July2025Tests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "nonogramSolver-July2025Tests";
+			sourceTree = "<group>";
+		};
+		535237622DFC96B000EC3443 /* nonogramSolver-July2025UITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "nonogramSolver-July2025UITests";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		535237442DFC96AE00EC3443 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		535237522DFC96B000EC3443 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5352375C2DFC96B000EC3443 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		5352373E2DFC96AE00EC3443 = {
+			isa = PBXGroup;
+			children = (
+				535237492DFC96AE00EC3443 /* nonogramSolver-July2025 */,
+				535237582DFC96B000EC3443 /* nonogramSolver-July2025Tests */,
+				535237622DFC96B000EC3443 /* nonogramSolver-July2025UITests */,
+				535237482DFC96AE00EC3443 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		535237482DFC96AE00EC3443 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				535237472DFC96AE00EC3443 /* nonogramSolver-July2025.app */,
+				535237552DFC96B000EC3443 /* nonogramSolver-July2025Tests.xctest */,
+				5352375F2DFC96B000EC3443 /* nonogramSolver-July2025UITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		535237462DFC96AE00EC3443 /* nonogramSolver-July2025 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 535237692DFC96B000EC3443 /* Build configuration list for PBXNativeTarget "nonogramSolver-July2025" */;
+			buildPhases = (
+				535237432DFC96AE00EC3443 /* Sources */,
+				535237442DFC96AE00EC3443 /* Frameworks */,
+				535237452DFC96AE00EC3443 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				535237492DFC96AE00EC3443 /* nonogramSolver-July2025 */,
+			);
+			name = "nonogramSolver-July2025";
+			packageProductDependencies = (
+			);
+			productName = "nonogramSolver-July2025";
+			productReference = 535237472DFC96AE00EC3443 /* nonogramSolver-July2025.app */;
+			productType = "com.apple.product-type.application";
+		};
+		535237542DFC96B000EC3443 /* nonogramSolver-July2025Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5352376C2DFC96B000EC3443 /* Build configuration list for PBXNativeTarget "nonogramSolver-July2025Tests" */;
+			buildPhases = (
+				535237512DFC96B000EC3443 /* Sources */,
+				535237522DFC96B000EC3443 /* Frameworks */,
+				535237532DFC96B000EC3443 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				535237572DFC96B000EC3443 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				535237582DFC96B000EC3443 /* nonogramSolver-July2025Tests */,
+			);
+			name = "nonogramSolver-July2025Tests";
+			packageProductDependencies = (
+			);
+			productName = "nonogramSolver-July2025Tests";
+			productReference = 535237552DFC96B000EC3443 /* nonogramSolver-July2025Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		5352375E2DFC96B000EC3443 /* nonogramSolver-July2025UITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5352376F2DFC96B000EC3443 /* Build configuration list for PBXNativeTarget "nonogramSolver-July2025UITests" */;
+			buildPhases = (
+				5352375B2DFC96B000EC3443 /* Sources */,
+				5352375C2DFC96B000EC3443 /* Frameworks */,
+				5352375D2DFC96B000EC3443 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				535237612DFC96B000EC3443 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				535237622DFC96B000EC3443 /* nonogramSolver-July2025UITests */,
+			);
+			name = "nonogramSolver-July2025UITests";
+			packageProductDependencies = (
+			);
+			productName = "nonogramSolver-July2025UITests";
+			productReference = 5352375F2DFC96B000EC3443 /* nonogramSolver-July2025UITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5352373F2DFC96AE00EC3443 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
+				TargetAttributes = {
+					535237462DFC96AE00EC3443 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					535237542DFC96B000EC3443 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = 535237462DFC96AE00EC3443;
+					};
+					5352375E2DFC96B000EC3443 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = 535237462DFC96AE00EC3443;
+					};
+				};
+			};
+			buildConfigurationList = 535237422DFC96AE00EC3443 /* Build configuration list for PBXProject "nonogramSolver-July2025" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 5352373E2DFC96AE00EC3443;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 535237482DFC96AE00EC3443 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				535237462DFC96AE00EC3443 /* nonogramSolver-July2025 */,
+				535237542DFC96B000EC3443 /* nonogramSolver-July2025Tests */,
+				5352375E2DFC96B000EC3443 /* nonogramSolver-July2025UITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		535237452DFC96AE00EC3443 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		535237532DFC96B000EC3443 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5352375D2DFC96B000EC3443 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		535237432DFC96AE00EC3443 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		535237512DFC96B000EC3443 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5352375B2DFC96B000EC3443 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		535237572DFC96B000EC3443 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 535237462DFC96AE00EC3443 /* nonogramSolver-July2025 */;
+			targetProxy = 535237562DFC96B000EC3443 /* PBXContainerItemProxy */;
+		};
+		535237612DFC96B000EC3443 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 535237462DFC96AE00EC3443 /* nonogramSolver-July2025 */;
+			targetProxy = 535237602DFC96B000EC3443 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		535237672DFC96B000EC3443 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = W474L7VX8G;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		535237682DFC96B000EC3443 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = W474L7VX8G;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		5352376A2DFC96B000EC3443 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "nonogramSolver-July2025/nonogramSolver_July2025.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W474L7VX8G;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "me.here.nonogramSolver-July2025";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		5352376B2DFC96B000EC3443 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "nonogramSolver-July2025/nonogramSolver_July2025.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W474L7VX8G;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "me.here.nonogramSolver-July2025";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		5352376D2DFC96B000EC3443 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W474L7VX8G;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "me.here.nonogramSolver-July2025Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/nonogramSolver-July2025.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/nonogramSolver-July2025";
+			};
+			name = Debug;
+		};
+		5352376E2DFC96B000EC3443 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W474L7VX8G;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "me.here.nonogramSolver-July2025Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/nonogramSolver-July2025.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/nonogramSolver-July2025";
+			};
+			name = Release;
+		};
+		535237702DFC96B000EC3443 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W474L7VX8G;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "me.here.nonogramSolver-July2025UITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "nonogramSolver-July2025";
+			};
+			name = Debug;
+		};
+		535237712DFC96B000EC3443 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W474L7VX8G;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "me.here.nonogramSolver-July2025UITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "nonogramSolver-July2025";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		535237422DFC96AE00EC3443 /* Build configuration list for PBXProject "nonogramSolver-July2025" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				535237672DFC96B000EC3443 /* Debug */,
+				535237682DFC96B000EC3443 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		535237692DFC96B000EC3443 /* Build configuration list for PBXNativeTarget "nonogramSolver-July2025" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5352376A2DFC96B000EC3443 /* Debug */,
+				5352376B2DFC96B000EC3443 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5352376C2DFC96B000EC3443 /* Build configuration list for PBXNativeTarget "nonogramSolver-July2025Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5352376D2DFC96B000EC3443 /* Debug */,
+				5352376E2DFC96B000EC3443 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5352376F2DFC96B000EC3443 /* Build configuration list for PBXNativeTarget "nonogramSolver-July2025UITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				535237702DFC96B000EC3443 /* Debug */,
+				535237712DFC96B000EC3443 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5352373F2DFC96AE00EC3443 /* Project object */;
+}
