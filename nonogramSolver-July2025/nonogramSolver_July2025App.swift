@@ -11,7 +11,7 @@ import SwiftUI
 struct nonogramSolver_July2025App: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SplashView()
         }
     }
 }

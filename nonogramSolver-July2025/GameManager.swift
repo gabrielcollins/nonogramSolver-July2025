@@ -8,10 +8,19 @@ class GameManager: ObservableObject {
 
     private let store = GameStateStore()
 
-    init() {
-        self.grid = PuzzleGrid(rows: 20, columns: 15)
-        self.rowClues = Array(repeating: [], count: grid.rows)
-        self.columnClues = Array(repeating: [], count: grid.columns)
+    init(grid: PuzzleGrid, rowClues: [[Int]], columnClues: [[Int]]) {
+        self.grid = grid
+        self.rowClues = rowClues
+        self.columnClues = columnClues
+    }
+
+    convenience init() {
+        let rows = 20
+        let columns = 15
+        let grid = PuzzleGrid(rows: rows, columns: columns)
+        let rowClues = Array(repeating: [], count: rows)
+        let columnClues = Array(repeating: [], count: columns)
+        self.init(grid: grid, rowClues: rowClues, columnClues: columnClues)
     }
 
     func load() async {
