@@ -1,7 +1,11 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var manager = GameManager()
+    @StateObject private var manager: GameManager
+
+    init(manager: GameManager) {
+        _manager = StateObject(wrappedValue: manager)
+    }
 
     var body: some View {
         NavigationStack {
@@ -36,12 +40,9 @@ struct ContentView: View {
                 }
             }
         }
-        .task {
-            await manager.load()
-        }
     }
 }
 
 #Preview {
-    ContentView()
+    ContentView(manager: GameManager())
 }
