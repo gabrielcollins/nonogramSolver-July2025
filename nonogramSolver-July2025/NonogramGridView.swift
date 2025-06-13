@@ -46,8 +46,32 @@ struct NonogramGridView: View {
                     .fill(GridLineConfig.clueBackgroundColor)
                     .frame(width: maxRowClueWidth, height: maxColumnClueHeight)
                     .overlay(
-                        Rectangle()
-                            .stroke(GridLineConfig.lineColor, lineWidth: GridLineConfig.thinLineWidth)
+                        // Custom border with thick outer edges
+                        ZStack {
+                            // Top border (thick outer edge)
+                            Rectangle()
+                                .fill(GridLineConfig.lineColor)
+                                .frame(height: GridLineConfig.thickLineWidth)
+                                .offset(y: -maxColumnClueHeight/2 + GridLineConfig.thickLineWidth/2)
+                            
+                            // Bottom border (thick to separate from row clues)
+                            Rectangle()
+                                .fill(GridLineConfig.lineColor)
+                                .frame(height: GridLineConfig.thickLineWidth)
+                                .offset(y: maxColumnClueHeight/2 - GridLineConfig.thickLineWidth/2)
+                            
+                            // Left border (thick outer edge)
+                            Rectangle()
+                                .fill(GridLineConfig.lineColor)
+                                .frame(width: GridLineConfig.thickLineWidth)
+                                .offset(x: -maxRowClueWidth/2 + GridLineConfig.thickLineWidth/2)
+                            
+                            // Right border (thick to separate from column clues)
+                            Rectangle()
+                                .fill(GridLineConfig.lineColor)
+                                .frame(width: GridLineConfig.thickLineWidth)
+                                .offset(x: maxRowClueWidth/2 - GridLineConfig.thickLineWidth/2)
+                        }
                     )
                 
                 // Column clue numbers positioned above their columns
@@ -65,8 +89,32 @@ struct NonogramGridView: View {
                     .frame(width: cellSize, height: maxColumnClueHeight)
                     .background(GridLineConfig.clueBackgroundColor)
                     .overlay(
-                        Rectangle()
-                            .stroke(GridLineConfig.lineColor, lineWidth: columnLineWidth(column: column))
+                        // Custom border with different widths for each edge to match gameplay area
+                        ZStack {
+                            // Top border (thick outer edge)
+                            Rectangle()
+                                .fill(GridLineConfig.lineColor)
+                                .frame(height: GridLineConfig.thickLineWidth)
+                                .offset(y: -maxColumnClueHeight/2 + GridLineConfig.thickLineWidth/2)
+                            
+                            // Bottom border (thick to separate from gameplay area)
+                            Rectangle()
+                                .fill(GridLineConfig.lineColor)
+                                .frame(height: GridLineConfig.thickLineWidth)
+                                .offset(y: maxColumnClueHeight/2 - GridLineConfig.thickLineWidth/2)
+                            
+                            // Left border
+                            Rectangle()
+                                .fill(GridLineConfig.lineColor)
+                                .frame(width: leftBorderWidth(column: column))
+                                .offset(x: -cellSize/2 + leftBorderWidth(column: column)/2)
+                            
+                            // Right border
+                            Rectangle()
+                                .fill(GridLineConfig.lineColor)
+                                .frame(width: rightBorderWidth(column: column))
+                                .offset(x: cellSize/2 - rightBorderWidth(column: column)/2)
+                        }
                     )
                 }
             }
@@ -90,8 +138,32 @@ struct NonogramGridView: View {
                         .frame(width: maxRowClueWidth, height: cellSize)
                         .background(GridLineConfig.clueBackgroundColor)
                         .overlay(
-                            Rectangle()
-                                .stroke(GridLineConfig.lineColor, lineWidth: rowLineWidth(row: row))
+                            // Custom border with different widths for each edge to match gameplay area
+                            ZStack {
+                                // Top border
+                                Rectangle()
+                                    .fill(GridLineConfig.lineColor)
+                                    .frame(height: topBorderWidth(row: row))
+                                    .offset(y: -cellSize/2 + topBorderWidth(row: row)/2)
+                                
+                                // Bottom border
+                                Rectangle()
+                                    .fill(GridLineConfig.lineColor)
+                                    .frame(height: bottomBorderWidth(row: row))
+                                    .offset(y: cellSize/2 - bottomBorderWidth(row: row)/2)
+                                
+                                // Left border (thick outer edge)
+                                Rectangle()
+                                    .fill(GridLineConfig.lineColor)
+                                    .frame(width: GridLineConfig.thickLineWidth)
+                                    .offset(x: -maxRowClueWidth/2 + GridLineConfig.thickLineWidth/2)
+                                
+                                // Right border (thick to separate from gameplay area)
+                                Rectangle()
+                                    .fill(GridLineConfig.lineColor)
+                                    .frame(width: GridLineConfig.thickLineWidth)
+                                    .offset(x: maxRowClueWidth/2 - GridLineConfig.thickLineWidth/2)
+                            }
                         )
                     }
                 }
