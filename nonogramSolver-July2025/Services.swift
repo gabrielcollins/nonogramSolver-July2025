@@ -1,5 +1,14 @@
 import Foundation
 
+protocol GameStateStoring {
+    func save(_ state: GameState) async
+    func load() async -> GameState?
+}
+
+protocol PuzzleLoading {
+    func loadPuzzle() -> GameState?
+}
+
 actor FlatFileController {
     func url(for fileName: String) -> URL {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
@@ -19,7 +28,7 @@ actor FlatFileController {
     }
 }
 
-actor GameStateStore {
+actor GameStateStore: GameStateStoring {
     private let controller = FlatFileController()
     private let fileName = "gamestate.json"
 
@@ -40,8 +49,8 @@ actor GameStateStore {
     }
 }
 
-struct PuzzleService {
-    static func loadSamplePuzzle() -> GameState? {
+struct PuzzleService: PuzzleLoading {
+    func loadPuzzle() -> GameState? {
         guard let url = Bundle.main.url(forResource: "testing", withExtension: "json") else {
             return nil
         }

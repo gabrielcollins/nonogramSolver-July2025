@@ -21,4 +21,17 @@ final class nonogramSolver_July2025Tests: XCTestCase {
         await newManager.load()
         XCTAssertEqual(newManager.grid.tiles[0][0], manager.grid.tiles[0][0])
     }
+
+    func testPuzzleLoading() {
+        let service = PuzzleService()
+        let puzzle = service.loadPuzzle()
+        XCTAssertNotNil(puzzle)
+    }
+
+    func testSetGridSize() async {
+        let manager = GameManager()
+        manager.set(rows: 10, columns: 12)
+        XCTAssertEqual(manager.grid.rows, 10)
+        XCTAssertEqual(manager.grid.columns, 12)
+    }
 }
