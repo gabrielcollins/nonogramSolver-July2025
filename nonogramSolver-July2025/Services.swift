@@ -1,6 +1,6 @@
 import Foundation
 
-protocol GameStateStoring {
+protocol GameStateStoring: Sendable {
     func save(_ state: GameState) async
     func load() async -> GameState?
 }
