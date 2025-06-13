@@ -106,8 +106,32 @@ struct NonogramGridView: View {
                                     .background(tileColor(manager.grid.tiles[row][column]))
                                     .frame(width: cellSize, height: cellSize)
                                     .overlay(
-                                        Rectangle()
-                                            .stroke(GridLineConfig.lineColor, lineWidth: gridLineWidth(row: row, column: column))
+                                        // Custom border with different widths for each edge
+                                        ZStack {
+                                            // Top border
+                                            Rectangle()
+                                                .fill(GridLineConfig.lineColor)
+                                                .frame(height: topBorderWidth(row: row))
+                                                .offset(y: -cellSize/2 + topBorderWidth(row: row)/2)
+                                            
+                                            // Bottom border
+                                            Rectangle()
+                                                .fill(GridLineConfig.lineColor)
+                                                .frame(height: bottomBorderWidth(row: row))
+                                                .offset(y: cellSize/2 - bottomBorderWidth(row: row)/2)
+                                            
+                                            // Left border
+                                            Rectangle()
+                                                .fill(GridLineConfig.lineColor)
+                                                .frame(width: leftBorderWidth(column: column))
+                                                .offset(x: -cellSize/2 + leftBorderWidth(column: column)/2)
+                                            
+                                            // Right border
+                                            Rectangle()
+                                                .fill(GridLineConfig.lineColor)
+                                                .frame(width: rightBorderWidth(column: column))
+                                                .offset(x: cellSize/2 - rightBorderWidth(column: column)/2)
+                                        }
                                     )
                                     .onTapGesture { manager.tap(row: row, column: column) }
                             }
@@ -116,11 +140,6 @@ struct NonogramGridView: View {
                 }
             }
         }
-        .overlay(
-            // Outer border for the entire nonogram
-            Rectangle()
-                .stroke(GridLineConfig.lineColor, lineWidth: GridLineConfig.thickLineWidth)
-        )
     }
 
     func tileColor(_ state: TileState) -> AnyView {
@@ -134,19 +153,50 @@ struct NonogramGridView: View {
         }
     }
 
-    func gridLineWidth(row: Int, column: Int) -> CGFloat {
-        let isThickRow = row % 5 == 0
-        let isThickColumn = column % 5 == 0
-        
-        if isThickRow || isThickColumn {
+    // Border width functions for individual cell edges
+    func topBorderWidth(row: Int) -> CGFloat {
+        // First row has thick top border (outer edge), thick borders also appear after every 5th row
+        if row == 0 {
             return GridLineConfig.thickLineWidth
-        } else {
-            return GridLineConfig.thinLineWidth
         }
+        return row % 5 == 0 ? GridLineConfig.thickLineWidth : GridLineConfig.thinLineWidth
+    }
+    
+    func bottomBorderWidth(row: Int) -> CGFloat {
+        // Thick border after every 5th row (positions 4, 9, 14, etc.) and last row (outer edge)
+        if (row + 1) % 5 == 0 {
+            return GridLineConfig.thickLineWidth
+        }
+        // Check if this is the last row (outer edge)
+        if row == manager.grid.rows - 1 {
+            return GridLineConfig.thickLineWidth
+        }
+        return GridLineConfig.thinLineWidth
+    }
+    
+    func leftBorderWidth(column: Int) -> CGFloat {
+        // First column has thick left border (outer edge), thick borders also appear after every 5th column
+        if column == 0 {
+            return GridLineConfig.thickLineWidth
+        }
+        return column % 5 == 0 ? GridLineConfig.thickLineWidth : GridLineConfig.thinLineWidth
+    }
+    
+    func rightBorderWidth(column: Int) -> CGFloat {
+        // Thick border after every 5th column (positions 4, 9, 14, etc.) and last column (outer edge)
+        if (column + 1) % 5 == 0 {
+            return GridLineConfig.thickLineWidth
+        }
+        // Check if this is the last column (outer edge)
+        if column == manager.grid.columns - 1 {
+            return GridLineConfig.thickLineWidth
+        }
+        return GridLineConfig.thinLineWidth
     }
     
     func rowLineWidth(row: Int) -> CGFloat {
-        if row % 5 == 0 {
+        // Use thick lines after every 5th row (positions 4, 9, 14, etc.)
+        if (row + 1) % 5 == 0 {
             return GridLineConfig.thickLineWidth
         } else {
             return GridLineConfig.thinLineWidth
@@ -154,17 +204,15 @@ struct NonogramGridView: View {
     }
     
     func columnLineWidth(column: Int) -> CGFloat {
-        if column % 5 == 0 {
+        // Use thick lines after every 5th column (positions 4, 9, 14, etc.)
+        if (column + 1) % 5 == 0 {
             return GridLineConfig.thickLineWidth
         } else {
             return GridLineConfig.thinLineWidth
         }
     }
     
-    // Legacy function for compatibility
-    func lineWidth(row: Int, column: Int) -> CGFloat {
-        return gridLineWidth(row: row, column: column)
-    }
+
 }
 
 #Preview {
