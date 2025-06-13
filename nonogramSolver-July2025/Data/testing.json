@@ -1,0 +1,15 @@
+{
+  "grid": {
+    "rows": 5,
+    "columns": 5,
+    "tiles": [
+      ["unmarked","unmarked","unmarked","unmarked","unmarked"],
+      ["unmarked","unmarked","unmarked","unmarked","unmarked"],
+      ["unmarked","unmarked","unmarked","unmarked","unmarked"],
+      ["unmarked","unmarked","unmarked","unmarked","unmarked"],
+      ["unmarked","unmarked","unmarked","unmarked","unmarked"]
+    ]
+  },
+  "rowClues": [],
+  "columnClues": []
+}
