@@ -34,4 +34,17 @@ final class GameManagerTests: XCTestCase {
         XCTAssertEqual(loaded?.rowCluesBySize[20]?[0], [1])
         XCTAssertEqual(loaded?.rowCluesBySize[2]?[0], [2])
     }
+
+    @MainActor
+    func testClearBoardResetsState() async {
+        let manager = GameManager()
+        manager.tap(row: 0, column: 0)
+        manager.stepSolve()
+
+        manager.clearBoard()
+
+        XCTAssertTrue(manager.grid.tiles.flatMap { $0 }.allSatisfy { $0 == .unmarked })
+        XCTAssertEqual(manager.highlightedRow, manager.grid.rows - 1)
+        XCTAssertNil(manager.highlightedColumn)
+    }
 }

@@ -52,13 +52,18 @@ struct ContentView: View {
                             
                             // Solve buttons
                             HStack(spacing: 10) {
-                                Button("Auto Solve") { 
-                                    manager.autoSolve() 
+                                Button("Auto Solve") {
+                                    manager.autoSolve()
                                 }
                                 .buttonStyle(.borderedProminent)
-                                
-                                Button("Step Solve") { 
-                                    manager.stepSolve() 
+
+                                Button("Step Solve") {
+                                    manager.stepSolve()
+                                }
+                                .buttonStyle(.bordered)
+
+                                Button("Clear") {
+                                    manager.clearBoard()
                                 }
                                 .buttonStyle(.bordered)
                             }
