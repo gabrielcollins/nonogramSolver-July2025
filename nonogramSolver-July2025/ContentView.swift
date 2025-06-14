@@ -53,9 +53,11 @@ struct ContentView: View {
                             // Solve buttons
                             HStack(spacing: 10) {
                                 Button("Auto Solve") {
-                                    manager.autoSolve()
+                                    Task { await manager.autoSolve() }
                                 }
                                 .buttonStyle(.borderedProminent)
+                                .tint(manager.contradictionEncountered ? .red : (manager.unsolvableByStep ? .orange : (manager.isPuzzleSolved ? .green : nil)))
+                                .disabled(manager.isPuzzleSolved || manager.unsolvableByStep)
 
                                 Button("Step Solve") {
                                     manager.stepSolve()
