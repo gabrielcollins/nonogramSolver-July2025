@@ -173,4 +173,45 @@ final class GameManagerTests: XCTestCase {
 
         XCTAssertTrue(manager.unsolvableByStep)
     }
+
+    @MainActor
+    func testAutoSolveSolvesPuzzle() async {
+        let manager = GameManager()
+        manager.set(rows: 1, columns: 1)
+        manager.updateRowClue(row: 0, string: "1")
+        manager.updateColumnClue(column: 0, string: "1")
+
+        await manager.autoSolve()
+
+        XCTAssertTrue(manager.isPuzzleSolved)
+        XCTAssertGreaterThan(manager.solvingStepCount, 0)
+    }
+
+    @MainActor
+    func testAutoSolveDetectsContradiction() async {
+        let manager = GameManager()
+        manager.set(rows: 1, columns: 1)
+        manager.updateRowClue(row: 0, string: "3")
+        manager.updateColumnClue(column: 0, string: "1")
+
+        await manager.autoSolve()
+
+        XCTAssertTrue(manager.contradictionEncountered)
+        XCTAssertEqual(manager.contradictionRow, 0)
+    }
+
+    @MainActor
+    func testAutoSolveDetectsUnsolvableLoop() async {
+        let manager = GameManager()
+        manager.set(rows: 2, columns: 2)
+        manager.clearBoard()
+        for i in 0..<2 {
+            manager.updateRowClue(row: i, string: "1")
+            manager.updateColumnClue(column: i, string: "1")
+        }
+
+        await manager.autoSolve()
+
+        XCTAssertTrue(manager.unsolvableByStep)
+    }
 }

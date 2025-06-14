@@ -186,8 +186,16 @@ class GameManager: ObservableObject {
         Task { await save() }
     }
 
-    func autoSolve() {
-        // stub
+    func autoSolve() async {
+        while !isPuzzleSolved &&
+              !contradictionEncountered &&
+              !unsolvableByStep {
+            stepSolve()
+            if isPuzzleSolved || contradictionEncountered || unsolvableByStep {
+                break
+            }
+            try? await Task.sleep(nanoseconds: 200_000_000)
+        }
     }
 
     func stepSolve() {
