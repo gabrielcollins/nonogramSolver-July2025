@@ -81,10 +81,14 @@ struct ContentView: View {
                                         Text("R\(row+1):")
                                             .frame(width: 30, alignment: .leading)
                                         TextField("e.g. 2 1", text: Binding(
-                                            get: { manager.rowClues[row].map(String.init).joined(separator: " ") },
+                                            get: { 
+                                                guard row < manager.rowClues.count else { return "" }
+                                                return manager.rowClues[row].map(String.init).joined(separator: " ") 
+                                            },
                                             set: { manager.updateRowClue(row: row, string: $0) }
                                         ))
                                         .onSubmit {
+                                            guard row < manager.rowClues.count else { return }
                                             manager.updateRowClue(row: row, string: manager.rowClues[row].map(String.init).joined(separator: " "))
                                         }
                                         .textFieldStyle(.roundedBorder)
@@ -100,10 +104,14 @@ struct ContentView: View {
                                         Text("C\(column+1):")
                                             .frame(width: 30, alignment: .leading)
                                         TextField("e.g. 1 3", text: Binding(
-                                            get: { manager.columnClues[column].map(String.init).joined(separator: " ") },
+                                            get: { 
+                                                guard column < manager.columnClues.count else { return "" }
+                                                return manager.columnClues[column].map(String.init).joined(separator: " ") 
+                                            },
                                             set: { manager.updateColumnClue(column: column, string: $0) }
                                         ))
                                         .onSubmit {
+                                            guard column < manager.columnClues.count else { return }
                                             manager.updateColumnClue(column: column, string: manager.columnClues[column].map(String.init).joined(separator: " "))
                                         }
                                         .textFieldStyle(.roundedBorder)

@@ -111,7 +111,7 @@ struct ColumnCluesView: View {
             ForEach(0..<manager.grid.columns, id: \.self) { column in
                 VStack(spacing: 2) {
                     Spacer()
-                    ForEach(manager.columnClues[column].reversed(), id: \.self) { clue in
+                    ForEach(Array(manager.columnClues[column].reversed().enumerated()), id: \.offset) { index, clue in
                         Text("\(clue)")
                             .font(.footnote.bold())
                             .foregroundColor(.black)
@@ -155,7 +155,7 @@ struct RowCluesView: View {
             ForEach(0..<manager.grid.rows, id: \.self) { row in
                 HStack(spacing: 2) {
                     Spacer().frame(maxWidth: 8)
-                    ForEach(manager.rowClues[row], id: \.self) { clue in
+                    ForEach(Array(manager.rowClues[row].enumerated()), id: \.offset) { index, clue in
                         Text("\(clue)")
                             .font(.footnote.bold())
                             .foregroundColor(.black)

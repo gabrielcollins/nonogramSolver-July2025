@@ -89,12 +89,14 @@ class GameManager: ObservableObject {
     }
 
     func updateRowClue(row: Int, string: String) {
+        guard row < rowClues.count else { return }
         rowClues[row] = string.split(separator: " ").compactMap { Int($0) }
         rowCluesBySize[grid.rows] = rowClues
         Task { await save() }
     }
 
     func updateColumnClue(column: Int, string: String) {
+        guard column < columnClues.count else { return }
         columnClues[column] = string.split(separator: " ").compactMap { Int($0) }
         columnCluesBySize[grid.columns] = columnClues
         Task { await save() }
