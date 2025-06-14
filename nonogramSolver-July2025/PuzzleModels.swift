@@ -20,6 +20,6 @@ struct PuzzleGrid: Codable {
 
 struct GameState: Codable {
     var grid: PuzzleGrid
-    var rowClues: [[Int]]
-    var columnClues: [[Int]]
+    var rowCluesBySize: [Int: [[Int]]]
+    var columnCluesBySize: [Int: [[Int]]]
 }
