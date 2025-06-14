@@ -8,6 +8,12 @@ final class BulkClueEntryTests: XCTestCase {
         XCTAssertEqual(result, [[1],[2,3],[4],[5],[6]])
     }
 
+    func testParserIgnoresWhitespace() {
+        let text = "\n  [[1], [2],\n   [3], [4],\n   [5]]  "
+        let result = BulkClueParser.parse(text)
+        XCTAssertEqual(result, [[1],[2],[3],[4],[5]])
+    }
+
     func testParserRejectsInvalidArray() {
         let text = "[[1],[-2]]" // negative number and invalid count
         XCTAssertNil(BulkClueParser.parse(text))

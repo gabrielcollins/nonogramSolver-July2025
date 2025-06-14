@@ -2,7 +2,9 @@ import Foundation
 
 struct BulkClueParser {
     static func parse(_ string: String) -> [[Int]]? {
-        guard let data = string.data(using: .utf8) else { return nil }
+        // Remove common whitespace characters so pretty printed JSON still parses
+        let cleaned = string.filter { !$0.isWhitespace }
+        guard let data = cleaned.data(using: .utf8) else { return nil }
         do {
             let clues = try JSONDecoder().decode([[Int]].self, from: data)
             guard clues.count >= 5,
