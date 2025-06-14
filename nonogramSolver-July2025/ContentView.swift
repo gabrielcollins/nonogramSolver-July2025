@@ -158,6 +158,10 @@ struct ContentView: View {
                                 }
                             }
                         }
+                        NavigationLink("Bulk Entry") {
+                            BulkClueEntryView(manager: manager)
+                        }
+                        .buttonStyle(.bordered)
                     }
                     .padding()
                     .background(Color.gray.opacity(0.1))
