@@ -2,6 +2,8 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var manager: GameManager
+    @State private var rowInputs: [String] = []
+    @State private var columnInputs: [String] = []
 
     init(manager: GameManager) {
         _manager = StateObject(wrappedValue: manager)
@@ -72,35 +74,35 @@ struct ContentView: View {
                         Text("Clue Input")
                             .font(.headline)
                         
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text("Row Clues:")
-                                    .font(.subheadline)
-                                ForEach(0..<min(5, manager.grid.rows), id: \.self) { row in
-                                    HStack {
-                                        Text("R\(row+1):")
-                                            .frame(width: 30, alignment: .leading)
-                                        TextField("e.g. 2 1", text: Binding(
-                                            get: { manager.rowClues[row].map(String.init).joined(separator: " ") },
-                                            set: { manager.updateRowClue(row: row, string: $0) }
-                                        ))
-                                        .textFieldStyle(.roundedBorder)
+                        HStack(alignment: .top) {
+                            ScrollView {
+                                VStack(alignment: .leading) {
+                                    Text("Row Clues:")
+                                        .font(.subheadline)
+                                    ForEach(0..<manager.grid.rows, id: \.self) { row in
+                                        HStack {
+                                            Text("R\(row+1):")
+                                                .frame(width: 30, alignment: .leading)
+                                            TextField("e.g. 2 1", text: $rowInputs[row])
+                                                .textFieldStyle(.roundedBorder)
+                                                .onSubmit { manager.updateRowClue(row: row, string: rowInputs[row]) }
+                                        }
                                     }
                                 }
                             }
-                            
-                            VStack(alignment: .leading) {
-                                Text("Column Clues:")
-                                    .font(.subheadline)
-                                ForEach(0..<min(5, manager.grid.columns), id: \.self) { column in
-                                    HStack {
-                                        Text("C\(column+1):")
-                                            .frame(width: 30, alignment: .leading)
-                                        TextField("e.g. 1 3", text: Binding(
-                                            get: { manager.columnClues[column].map(String.init).joined(separator: " ") },
-                                            set: { manager.updateColumnClue(column: column, string: $0) }
-                                        ))
-                                        .textFieldStyle(.roundedBorder)
+
+                            ScrollView {
+                                VStack(alignment: .leading) {
+                                    Text("Column Clues:")
+                                        .font(.subheadline)
+                                    ForEach(0..<manager.grid.columns, id: \.self) { column in
+                                        HStack {
+                                            Text("C\(column+1):")
+                                                .frame(width: 30, alignment: .leading)
+                                            TextField("e.g. 1 3", text: $columnInputs[column])
+                                                .textFieldStyle(.roundedBorder)
+                                                .onSubmit { manager.updateColumnClue(column: column, string: columnInputs[column]) }
+                                        }
                                     }
                                 }
                             }
@@ -113,7 +115,15 @@ struct ContentView: View {
             }
             .padding()
             .navigationTitle("Nonogram Solver")
+            .onAppear(perform: syncInputs)
+            .onChange(of: manager.grid.rows) { _ in syncInputs() }
+            .onChange(of: manager.grid.columns) { _ in syncInputs() }
         }
+    }
+
+    private func syncInputs() {
+        rowInputs = manager.rowClues.map { $0.map(String.init).joined(separator: " ") }
+        columnInputs = manager.columnClues.map { $0.map(String.init).joined(separator: " ") }
     }
 }
 

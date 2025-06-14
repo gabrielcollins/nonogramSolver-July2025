@@ -1,8 +1,8 @@
 import Foundation
 
 protocol GameStateStoring: Sendable {
-    func save(_ state: GameState) async
-    func load() async -> GameState?
+    func save(_ collection: GameStateCollection) async
+    func load() async -> GameStateCollection
 }
 
 protocol PuzzleLoading {
@@ -32,19 +32,19 @@ actor GameStateStore: GameStateStoring {
     private let controller = FlatFileController()
     private let fileName = "gamestate.json"
 
-    func save(_ state: GameState) async {
+    func save(_ collection: GameStateCollection) async {
         do {
-            try await controller.save(state, to: fileName)
+            try await controller.save(collection, to: fileName)
         } catch {
             print("Failed to save state: \(error)")
         }
     }
 
-    func load() async -> GameState? {
+    func load() async -> GameStateCollection {
         do {
-            return try await controller.load(fileName, as: GameState.self)
+            return try await controller.load(fileName, as: GameStateCollection.self)
         } catch {
-            return nil
+            return GameStateCollection()
         }
     }
 }

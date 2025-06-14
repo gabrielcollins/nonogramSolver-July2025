@@ -23,3 +23,8 @@ struct GameState: Codable {
     var rowClues: [[Int]]
     var columnClues: [[Int]]
 }
+
+/// Wrapper storing multiple game states keyed by a "rowsxcolumns" string.
+struct GameStateCollection: Codable {
+    var states: [String: GameState] = [:]
+}

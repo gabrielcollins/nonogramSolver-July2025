@@ -7,12 +7,16 @@ class GameManager: ObservableObject {
     @Published var columnClues: [[Int]]
 
     private let store: GameStateStoring
+    private var states = GameStateCollection()
+
+    private var currentKey: String { "\(grid.rows)x\(grid.columns)" }
 
     init(grid: PuzzleGrid, rowClues: [[Int]], columnClues: [[Int]], store: GameStateStoring) {
         self.grid = grid
         self.rowClues = rowClues
         self.columnClues = columnClues
         self.store = store
+        self.states.states[currentKey] = GameState(grid: grid, rowClues: rowClues, columnClues: columnClues)
     }
 
     convenience init(store: GameStateStoring = GameStateStore()) {
@@ -25,22 +29,35 @@ class GameManager: ObservableObject {
     }
 
     func load() async {
-        if let state = await store.load() {
-            self.grid = state.grid
-            self.rowClues = state.rowClues
-            self.columnClues = state.columnClues
+        states = await store.load()
+        if let loaded = states.states[currentKey] {
+            grid = loaded.grid
+            rowClues = loaded.rowClues
+            columnClues = loaded.columnClues
+        } else {
+            states.states[currentKey] = GameState(grid: grid, rowClues: rowClues, columnClues: columnClues)
         }
     }
 
     func save() async {
-        let state = GameState(grid: grid, rowClues: rowClues, columnClues: columnClues)
-        await store.save(state)
+        states.states[currentKey] = GameState(grid: grid, rowClues: rowClues, columnClues: columnClues)
+        await store.save(states)
     }
 
     func set(rows: Int, columns: Int) {
-        grid = PuzzleGrid(rows: rows, columns: columns)
-        rowClues = Array(repeating: [Int](), count: rows)
-        columnClues = Array(repeating: [Int](), count: columns)
+        // Save existing state
+        states.states[currentKey] = GameState(grid: grid, rowClues: rowClues, columnClues: columnClues)
+
+        let newKey = "\(rows)x\(columns)"
+        if let existing = states.states[newKey] {
+            grid = existing.grid
+            rowClues = existing.rowClues
+            columnClues = existing.columnClues
+        } else {
+            grid = PuzzleGrid(rows: rows, columns: columns)
+            rowClues = Array(repeating: [Int](), count: rows)
+            columnClues = Array(repeating: [Int](), count: columns)
+        }
         Task { await save() }
     }
 
