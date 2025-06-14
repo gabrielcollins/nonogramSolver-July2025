@@ -7,6 +7,7 @@ class GameManager: ObservableObject {
     @Published var columnClues: [[Int]]
     @Published var highlightedRow: Int?
     @Published var highlightedColumn: Int?
+    @Published var solvingStepCount: Int = 0
     private var solvingRows = true
     private var rowCluesBySize: [Int: [[Int]]]
     private var columnCluesBySize: [Int: [[Int]]]
@@ -130,6 +131,7 @@ class GameManager: ObservableObject {
         solvingRows = true
         highlightedRow = grid.rows - 1
         highlightedColumn = nil
+        solvingStepCount = 0
         Task { await save() }
     }
 
@@ -146,6 +148,7 @@ class GameManager: ObservableObject {
             guard let row = highlightedRow, row >= 0, row < grid.rows else { return }
 
             solveRow(row)
+            solvingStepCount += 1
 
             if row > 0 {
                 highlightedRow = row - 1
@@ -162,6 +165,7 @@ class GameManager: ObservableObject {
             guard let column = highlightedColumn, column >= 0, column < grid.columns else { return }
 
             solveColumn(column)
+            solvingStepCount += 1
 
             if column < grid.columns - 1 {
                 highlightedColumn = column + 1

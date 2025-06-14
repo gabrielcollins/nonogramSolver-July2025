@@ -68,6 +68,8 @@ struct ContentView: View {
                                 .buttonStyle(.bordered)
                             }
                         }
+                        Text("Solving Steps: \(manager.solvingStepCount)")
+                            .font(.caption)
                     }
                     .padding()
                     .background(Color.gray.opacity(0.05))
