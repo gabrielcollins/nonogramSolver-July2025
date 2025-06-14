@@ -43,20 +43,22 @@ struct BulkClueEntryView: View {
     }
 
     private func submitRows() {
-        if let clues = BulkClueParser.parse(rowText) {
+        switch BulkClueParser.parse(rowText) {
+        case .success(let clues):
             manager.loadRowClues(clues)
             rowError = nil
-        } else {
-            rowError = "Invalid row clue array"
+        case .failure(let error):
+            rowError = "Failed: \(error.errorDescription ?? "Unknown error")"
         }
     }
 
     private func submitColumns() {
-        if let clues = BulkClueParser.parse(columnText) {
+        switch BulkClueParser.parse(columnText) {
+        case .success(let clues):
             manager.loadColumnClues(clues)
             columnError = nil
-        } else {
-            columnError = "Invalid column clue array"
+        case .failure(let error):
+            columnError = "Failed: \(error.errorDescription ?? "Unknown error")"
         }
     }
 }

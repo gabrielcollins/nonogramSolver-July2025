@@ -5,18 +5,34 @@ final class BulkClueEntryTests: XCTestCase {
     func testParserParsesValidArray() {
         let text = "[[1],[2,3],[4],[5],[6]]"
         let result = BulkClueParser.parse(text)
-        XCTAssertEqual(result, [[1],[2,3],[4],[5],[6]])
+        switch result {
+        case .success(let clues):
+            XCTAssertEqual(clues, [[1],[2,3],[4],[5],[6]])
+        default:
+            XCTFail("Expected success")
+        }
     }
 
     func testParserIgnoresWhitespace() {
         let text = "\n  [[1], [2],\n   [3], [4],\n   [5]]  "
         let result = BulkClueParser.parse(text)
-        XCTAssertEqual(result, [[1],[2],[3],[4],[5]])
+        switch result {
+        case .success(let clues):
+            XCTAssertEqual(clues, [[1],[2],[3],[4],[5]])
+        default:
+            XCTFail("Expected success")
+        }
     }
 
     func testParserRejectsInvalidArray() {
         let text = "[[1],[-2]]" // negative number and invalid count
-        XCTAssertNil(BulkClueParser.parse(text))
+        let result = BulkClueParser.parse(text)
+        switch result {
+        case .failure(let error):
+            XCTAssertEqual(error, .nonPositiveNumbers)
+        default:
+            XCTFail("Expected failure")
+        }
     }
 
     @MainActor
