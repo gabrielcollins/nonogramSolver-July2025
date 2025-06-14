@@ -196,20 +196,22 @@ struct ContentView: View {
     }
 
     private func submitBulkRows() {
-        if let clues = BulkClueParser.parse(bulkRowText) {
+        switch BulkClueParser.parse(bulkRowText) {
+        case .success(let clues):
             manager.loadRowClues(clues)
             bulkRowError = nil
-        } else {
-            bulkRowError = "Invalid row clue array"
+        case .failure(let error):
+            bulkRowError = "Failed: \(error.errorDescription ?? "Unknown error")"
         }
     }
 
     private func submitBulkColumns() {
-        if let clues = BulkClueParser.parse(bulkColumnText) {
+        switch BulkClueParser.parse(bulkColumnText) {
+        case .success(let clues):
             manager.loadColumnClues(clues)
             bulkColumnError = nil
-        } else {
-            bulkColumnError = "Invalid column clue array"
+        case .failure(let error):
+            bulkColumnError = "Failed: \(error.errorDescription ?? "Unknown error")"
         }
     }
 }
