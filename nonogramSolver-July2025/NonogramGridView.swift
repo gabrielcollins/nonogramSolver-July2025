@@ -11,7 +11,9 @@ struct NonogramGridView: View {
         let spacing: CGFloat = 2
         let basePadding: CGFloat = 20 // Increased for more breathing room
         
-        let maxClueCount = manager.columnClues.map { $0.count }.max() ?? 0
+        // Ensure we only access valid column clues
+        let validColumnClues = manager.columnClues.prefix(manager.grid.columns)
+        let maxClueCount = validColumnClues.map { $0.count }.max() ?? 0
         return CGFloat(maxClueCount) * numberHeight + CGFloat(max(0, maxClueCount - 1)) * spacing + basePadding
     }
     
@@ -20,7 +22,9 @@ struct NonogramGridView: View {
         let spacing: CGFloat = 4
         let basePadding: CGFloat = 24 // Increased for more breathing room
         
-        let maxWidth = manager.rowClues.map { clue in
+        // Ensure we only access valid row clues
+        let validRowClues = manager.rowClues.prefix(manager.grid.rows)
+        let maxWidth = validRowClues.map { clue in
             let totalCharacters = clue.map { String($0).count }.reduce(0, +)
             let spacingWidth = CGFloat(max(0, clue.count - 1)) * spacing
             return CGFloat(totalCharacters) * digitWidth + spacingWidth

@@ -49,31 +49,51 @@ class GameManager: ObservableObject {
     }
 
     func set(rows: Int, columns: Int) {
-        // Persist clues for current size
+        // Don't do anything if the size hasn't changed
+        if grid.rows == rows && grid.columns == columns {
+            return
+        }
+        
+        // Persist clues for current size before changing anything
         rowCluesBySize[grid.rows] = rowClues
         columnCluesBySize[grid.columns] = columnClues
 
-        grid = PuzzleGrid(rows: rows, columns: columns)
-
+        // Create new grid and clue arrays atomically
+        let newGrid = PuzzleGrid(rows: rows, columns: columns)
+        let newRowClues: [[Int]]
+        let newColumnClues: [[Int]]
+        
         if let savedRows = rowCluesBySize[rows] {
-            rowClues = savedRows
+            newRowClues = savedRows
         } else {
-            rowClues = Array(repeating: [Int](), count: rows)
-            rowCluesBySize[rows] = rowClues
+            newRowClues = Array(repeating: [Int](), count: rows)
         }
 
         if let savedColumns = columnCluesBySize[columns] {
-            columnClues = savedColumns
+            newColumnClues = savedColumns
         } else {
-            columnClues = Array(repeating: [Int](), count: columns)
-            columnCluesBySize[columns] = columnClues
+            newColumnClues = Array(repeating: [Int](), count: columns)
         }
+        
+        // Update all state atomically to prevent race conditions
+        // Use objectWillChange to ensure UI updates happen properly
+        objectWillChange.send()
+        
+        grid = newGrid
+        rowClues = newRowClues
+        columnClues = newColumnClues
+        
+        // Update the dictionaries with the new arrays
+        rowCluesBySize[rows] = newRowClues
+        columnCluesBySize[columns] = newColumnClues
 
         Task { await save() }
     }
 
     func tap(row: Int, column: Int) {
-        guard row < grid.rows, column < grid.columns else { return }
+        guard row < grid.rows, column < grid.columns,
+              row < grid.tiles.count, 
+              row >= 0 && column >= 0 && column < grid.tiles[row].count else { return }
         let current = grid.tiles[row][column]
         let next: TileState
         switch current {

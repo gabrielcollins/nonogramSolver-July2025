@@ -8,10 +8,14 @@ struct ClueEntryView: View {
             Text("Row Clues")
             ForEach(0..<manager.grid.rows, id: \.self) { row in
                 TextField("Row \(row)", text: Binding(
-                    get: { manager.rowClues[row].map(String.init).joined(separator: " ") },
+                    get: { 
+                        guard row < manager.rowClues.count else { return "" }
+                        return manager.rowClues[row].map(String.init).joined(separator: " ") 
+                    },
                     set: { manager.updateRowClue(row: row, string: $0) }
                 ))
                     .onSubmit {
+                        guard row < manager.rowClues.count else { return }
                         manager.updateRowClue(row: row, string: manager.rowClues[row].map(String.init).joined(separator: " "))
                     }
                     .textFieldStyle(.roundedBorder)
@@ -19,10 +23,14 @@ struct ClueEntryView: View {
             Text("Column Clues")
             ForEach(0..<manager.grid.columns, id: \.self) { column in
                 TextField("Col \(column)", text: Binding(
-                    get: { manager.columnClues[column].map(String.init).joined(separator: " ") },
+                    get: { 
+                        guard column < manager.columnClues.count else { return "" }
+                        return manager.columnClues[column].map(String.init).joined(separator: " ") 
+                    },
                     set: { manager.updateColumnClue(column: column, string: $0) }
                 ))
                     .onSubmit {
+                        guard column < manager.columnClues.count else { return }
                         manager.updateColumnClue(column: column, string: manager.columnClues[column].map(String.init).joined(separator: " "))
                     }
                     .textFieldStyle(.roundedBorder)

@@ -51,7 +51,12 @@ struct GridCellView: View {
     var body: some View {
         Rectangle()
             .fill(Color.clear)
-            .background(manager.grid.tiles[row][column].view)
+            .background(
+                (row < manager.grid.rows && column < manager.grid.columns && 
+                 row < manager.grid.tiles.count && column < manager.grid.tiles[row].count) 
+                ? manager.grid.tiles[row][column].view 
+                : TileState.unmarked.view
+            )
             .frame(width: cellSize, height: cellSize)
             .overlay(
                 ZStack {
@@ -111,7 +116,7 @@ struct ColumnCluesView: View {
             ForEach(0..<manager.grid.columns, id: \.self) { column in
                 VStack(spacing: 2) {
                     Spacer()
-                    ForEach(Array(manager.columnClues[column].reversed().enumerated()), id: \.offset) { index, clue in
+                    ForEach(Array((column < manager.columnClues.count ? manager.columnClues[column] : []).reversed().enumerated()), id: \.offset) { index, clue in
                         Text("\(clue)")
                             .font(.footnote.bold())
                             .foregroundColor(.black)
@@ -155,7 +160,7 @@ struct RowCluesView: View {
             ForEach(0..<manager.grid.rows, id: \.self) { row in
                 HStack(spacing: 2) {
                     Spacer().frame(maxWidth: 8)
-                    ForEach(Array(manager.rowClues[row].enumerated()), id: \.offset) { index, clue in
+                    ForEach(Array((row < manager.rowClues.count ? manager.rowClues[row] : []).enumerated()), id: \.offset) { index, clue in
                         Text("\(clue)")
                             .font(.footnote.bold())
                             .foregroundColor(.black)
