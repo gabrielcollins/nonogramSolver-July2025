@@ -14,6 +14,9 @@ class GameManager: ObservableObject {
     @Published var contradictionColumn: Int?
     @Published var contradictionEncountered: Bool = false
     @Published var solvingStepCount: Int = 0
+    @Published var lastSolvedClues: String?
+    @Published var unsolvableByStep: Bool = false
+    private var progressMadeDuringStep: Bool = false
     /// Returns `true` when no tiles remain in the `.unmarked` state.
     var isPuzzleSolved: Bool {
         !grid.tiles.flatMap { $0 }.contains(.unmarked)
@@ -175,6 +178,8 @@ class GameManager: ObservableObject {
         contradictionRow = nil
         contradictionColumn = nil
         contradictionEncountered = false
+        lastSolvedClues = nil
+        unsolvableByStep = false
         solvingStepCount = 0
         Task { await save() }
     }
@@ -186,6 +191,8 @@ class GameManager: ObservableObject {
     func stepSolve() {
         guard !isPuzzleSolved else { return }
         guard !contradictionEncountered else { return }
+        guard !unsolvableByStep else { return }
+        progressMadeDuringStep = false
         if solvingRows {
             if let errorRow = errorRow {
                 self.errorRow = nil
@@ -210,11 +217,17 @@ class GameManager: ObservableObject {
 
             if !solveRow(row) { return }
             solvingStepCount += 1
+            if progressMadeDuringStep {
+                lastSolvedClues = "R\(row + 1)"
+                unsolvableByStep = false
+            }
 
             highlightedRow = previousUnsolvedRow(before: row)
             if highlightedRow == nil {
                 solvingRows = false
                 highlightedColumn = nextUnsolvedColumn(after: -1)
+            } else if !progressMadeDuringStep, let next = highlightedRow, lastSolvedClues == "R\(next + 1)" {
+                unsolvableByStep = true
             }
         } else {
             if let errorColumn = errorColumn {
@@ -240,11 +253,17 @@ class GameManager: ObservableObject {
 
             if !solveColumn(column) { return }
             solvingStepCount += 1
+            if progressMadeDuringStep {
+                lastSolvedClues = "C\(column + 1)"
+                unsolvableByStep = false
+            }
 
             highlightedColumn = nextUnsolvedColumn(after: column)
             if highlightedColumn == nil {
                 solvingRows = true
                 highlightedRow = previousUnsolvedRow(before: grid.rows)
+            } else if !progressMadeDuringStep, let next = highlightedColumn, lastSolvedClues == "C\(next + 1)" {
+                unsolvableByStep = true
             }
         }
     }
@@ -296,7 +315,10 @@ class GameManager: ObservableObject {
         for column in 0..<current.count {
             let states = Set(permutations.map { $0[column] })
             if states.count == 1, let state = states.first {
-                grid.tiles[row][column] = state
+                if grid.tiles[row][column] != state {
+                    grid.tiles[row][column] = state
+                    progressMadeDuringStep = true
+                }
             }
         }
         return true
@@ -316,7 +338,10 @@ class GameManager: ObservableObject {
         for row in 0..<current.count {
             let states = Set(permutations.map { $0[row] })
             if states.count == 1, let state = states.first {
-                grid.tiles[row][column] = state
+                if grid.tiles[row][column] != state {
+                    grid.tiles[row][column] = state
+                    progressMadeDuringStep = true
+                }
             }
         }
         return true

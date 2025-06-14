@@ -58,7 +58,7 @@ struct NonogramGridView: View {
                         }
                         .background(
                             (row == manager.errorRow || row == manager.contradictionRow) ? Color.red.opacity(0.3) :
-                            (row == manager.highlightedRow ? Color.yellow.opacity(0.3) : Color.clear)
+                            (row == manager.highlightedRow ? (manager.unsolvableByStep ? Color.orange.opacity(0.3) : Color.yellow.opacity(0.3)) : Color.clear)
                         )
                     }
                 }

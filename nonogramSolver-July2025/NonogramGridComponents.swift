@@ -59,7 +59,7 @@ struct GridCellView: View {
             )
             .background(
                 (column == manager.errorColumn || column == manager.contradictionColumn) ? Color.red.opacity(0.3) :
-                (column == manager.highlightedColumn ? Color.yellow.opacity(0.3) : Color.clear)
+                (column == manager.highlightedColumn ? (manager.unsolvableByStep ? Color.orange.opacity(0.3) : Color.yellow.opacity(0.3)) : Color.clear)
             )
             .frame(width: cellSize, height: cellSize)
             .overlay(
@@ -130,7 +130,7 @@ struct ColumnCluesView: View {
                 .frame(width: cellSize, height: maxColumnClueHeight)
                 .background(
                     (column == manager.errorColumn || column == manager.contradictionColumn) ? Color.red.opacity(0.3) :
-                    (column == manager.highlightedColumn ? Color.yellow.opacity(0.3) : GridStyle.clueBackgroundColor)
+                    (column == manager.highlightedColumn ? (manager.unsolvableByStep ? Color.orange.opacity(0.3) : Color.yellow.opacity(0.3)) : GridStyle.clueBackgroundColor)
                 )
                 .overlay(
                     ZStack {
@@ -177,7 +177,7 @@ struct RowCluesView: View {
                 .frame(width: maxRowClueWidth, height: cellSize)
                 .background(
                     (row == manager.errorRow || row == manager.contradictionRow) ? Color.red.opacity(0.3) :
-                    (row == manager.highlightedRow ? Color.yellow.opacity(0.3) : GridStyle.clueBackgroundColor)
+                    (row == manager.highlightedRow ? (manager.unsolvableByStep ? Color.orange.opacity(0.3) : Color.yellow.opacity(0.3)) : GridStyle.clueBackgroundColor)
                 )
                 .overlay(
                     ZStack {

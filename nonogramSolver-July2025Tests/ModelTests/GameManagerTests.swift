@@ -158,4 +158,20 @@ final class GameManagerTests: XCTestCase {
         XCTAssertTrue(manager.contradictionEncountered)
         XCTAssertEqual(manager.solvingStepCount, 1)
     }
+
+    @MainActor
+    func testStepSolveDetectsUnsolvableLoop() async {
+        let manager = GameManager()
+        manager.set(rows: 2, columns: 2)
+        manager.clearBoard()
+        for i in 0..<2 {
+            manager.updateRowClue(row: i, string: "1")
+            manager.updateColumnClue(column: i, string: "1")
+        }
+
+        manager.lastSolvedClues = "R2"
+        for _ in 0..<4 { manager.stepSolve() }
+
+        XCTAssertTrue(manager.unsolvableByStep)
+    }
 }
