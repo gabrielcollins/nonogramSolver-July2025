@@ -116,13 +116,12 @@ struct ColumnCluesView: View {
                 )
             ForEach(0..<manager.grid.columns, id: \.self) { column in
                 VStack(spacing: 2) {
-                    Spacer().frame(maxHeight: 8)
+                    Spacer()
                     ForEach(Array((column < manager.columnClues.count ? manager.columnClues[column] : []).enumerated()), id: \.offset) { index, clue in
                         Text("\(clue)")
                             .font(.footnote.bold())
                             .foregroundColor(.black)
                     }
-                    Spacer()
                     Spacer().frame(maxHeight: 8)
                 }
                 .frame(width: cellSize, height: maxColumnClueHeight)
