@@ -65,4 +65,14 @@ final class GameManagerTests: XCTestCase {
         XCTAssertEqual(manager.highlightedRow, 0)
         XCTAssertEqual(manager.solvingStepCount, 1)
     }
+
+    @MainActor
+    func testIsPuzzleSolved() async {
+        let manager = GameManager()
+        manager.set(rows: 2, columns: 2)
+        for r in 0..<2 { for c in 0..<2 { manager.tap(row: r, column: c) } }
+        XCTAssertTrue(manager.isPuzzleSolved)
+        manager.clearBoard()
+        XCTAssertFalse(manager.isPuzzleSolved)
+    }
 }

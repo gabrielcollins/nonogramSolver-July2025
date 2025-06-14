@@ -8,6 +8,10 @@ class GameManager: ObservableObject {
     @Published var highlightedRow: Int?
     @Published var highlightedColumn: Int?
     @Published var solvingStepCount: Int = 0
+    /// Returns `true` when no tiles remain in the `.unmarked` state.
+    var isPuzzleSolved: Bool {
+        !grid.tiles.flatMap { $0 }.contains(.unmarked)
+    }
     private var solvingRows = true
     private var rowCluesBySize: [Int: [[Int]]]
     private var columnCluesBySize: [Int: [[Int]]]
@@ -140,6 +144,7 @@ class GameManager: ObservableObject {
     }
 
     func stepSolve() {
+        guard !isPuzzleSolved else { return }
         if solvingRows {
             if highlightedRow == nil {
                 highlightedRow = previousUnsolvedRow(before: grid.rows)
