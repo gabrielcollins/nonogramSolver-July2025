@@ -170,6 +170,20 @@ class GameManager: ObservableObject {
         Task { await save() }
     }
 
+    func loadRowClues(_ clues: [[Int]]) {
+        set(rows: clues.count, columns: grid.columns)
+        rowClues = clues
+        rowCluesBySize[grid.rows] = clues
+        Task { await save() }
+    }
+
+    func loadColumnClues(_ clues: [[Int]]) {
+        set(rows: grid.rows, columns: clues.count)
+        columnClues = clues
+        columnCluesBySize[grid.columns] = clues
+        Task { await save() }
+    }
+
     func clearBoard() {
         grid = PuzzleGrid(rows: grid.rows, columns: grid.columns)
         solvingRows = true
