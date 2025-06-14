@@ -2,6 +2,10 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var manager: GameManager
+    @State private var bulkRowText = ""
+    @State private var bulkColumnText = ""
+    @State private var bulkRowError: String?
+    @State private var bulkColumnError: String?
 
     init(manager: GameManager) {
         _manager = StateObject(wrappedValue: manager)
@@ -107,14 +111,24 @@ struct ContentView: View {
                                     .font(.caption)
                                     .buttonStyle(.bordered)
                                 }
+                                if let bulkRowError = bulkRowError {
+                                    Text(bulkRowError)
+                                        .foregroundColor(.red)
+                                        .font(.caption)
+                                }
+                                TextEditor(text: $bulkRowText)
+                                    .font(.system(.body, design: .monospaced))
+                                    .frame(height: 60)
+                                Button("Load Rows") { submitBulkRows() }
+                                    .buttonStyle(.borderedProminent)
                                 ForEach(0..<manager.grid.rows, id: \.self) { row in
                                     HStack {
                                         Text("R\(row+1):")
                                             .frame(width: 30, alignment: .leading)
                                         TextField("e.g. 2 1", text: Binding(
-                                            get: { 
+                                            get: {
                                                 guard row < manager.rowClues.count else { return "" }
-                                                return manager.rowClues[row].map(String.init).joined(separator: " ") 
+                                                return manager.rowClues[row].map(String.init).joined(separator: " ")
                                             },
                                             set: { manager.updateRowClue(row: row, string: $0) }
                                         ))
@@ -138,14 +152,24 @@ struct ContentView: View {
                                     .font(.caption)
                                     .buttonStyle(.bordered)
                                 }
+                                if let bulkColumnError = bulkColumnError {
+                                    Text(bulkColumnError)
+                                        .foregroundColor(.red)
+                                        .font(.caption)
+                                }
+                                TextEditor(text: $bulkColumnText)
+                                    .font(.system(.body, design: .monospaced))
+                                    .frame(height: 60)
+                                Button("Load Columns") { submitBulkColumns() }
+                                    .buttonStyle(.borderedProminent)
                                 ForEach(0..<manager.grid.columns, id: \.self) { column in
                                     HStack {
                                         Text("C\(column+1):")
                                             .frame(width: 30, alignment: .leading)
                                         TextField("e.g. 1 3", text: Binding(
-                                            get: { 
+                                            get: {
                                                 guard column < manager.columnClues.count else { return "" }
-                                                return manager.columnClues[column].map(String.init).joined(separator: " ") 
+                                                return manager.columnClues[column].map(String.init).joined(separator: " ")
                                             },
                                             set: { manager.updateColumnClue(column: column, string: $0) }
                                         ))
@@ -158,10 +182,6 @@ struct ContentView: View {
                                 }
                             }
                         }
-                        NavigationLink("Bulk Entry") {
-                            BulkClueEntryView(manager: manager)
-                        }
-                        .buttonStyle(.bordered)
                     }
                     .padding()
                     .background(Color.gray.opacity(0.1))
@@ -172,6 +192,24 @@ struct ContentView: View {
                 .padding()
             }
             .navigationTitle("Nonogram Solver")
+        }
+    }
+
+    private func submitBulkRows() {
+        if let clues = BulkClueParser.parse(bulkRowText) {
+            manager.loadRowClues(clues)
+            bulkRowError = nil
+        } else {
+            bulkRowError = "Invalid row clue array"
+        }
+    }
+
+    private func submitBulkColumns() {
+        if let clues = BulkClueParser.parse(bulkColumnText) {
+            manager.loadColumnClues(clues)
+            bulkColumnError = nil
+        } else {
+            bulkColumnError = "Invalid column clue array"
         }
     }
 }
