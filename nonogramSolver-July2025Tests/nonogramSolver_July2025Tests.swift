@@ -3,6 +3,7 @@ import XCTest
 
 final class nonogramSolver_July2025Tests: XCTestCase {
 
+    @MainActor
     func testTileCycle() async {
         let manager = GameManager()
         manager.tap(row: 0, column: 0)
@@ -13,6 +14,7 @@ final class nonogramSolver_July2025Tests: XCTestCase {
         XCTAssertEqual(manager.grid.tiles[0][0], .unmarked)
     }
 
+    @MainActor
     func testPersistence() async throws {
         let manager = GameManager()
         manager.tap(row: 0, column: 0)
@@ -28,6 +30,7 @@ final class nonogramSolver_July2025Tests: XCTestCase {
         XCTAssertNotNil(puzzle)
     }
 
+    @MainActor
     func testSetGridSize() async {
         let manager = GameManager()
         manager.set(rows: 10, columns: 12)
