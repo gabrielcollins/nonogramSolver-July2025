@@ -52,11 +52,12 @@ struct GridCellView: View {
         Rectangle()
             .fill(Color.clear)
             .background(
-                (row < manager.grid.rows && column < manager.grid.columns && 
-                 row < manager.grid.tiles.count && column < manager.grid.tiles[row].count) 
-                ? manager.grid.tiles[row][column].view 
+                (row < manager.grid.rows && column < manager.grid.columns &&
+                 row < manager.grid.tiles.count && column < manager.grid.tiles[row].count)
+                ? manager.grid.tiles[row][column].view
                 : TileState.unmarked.view
             )
+            .background(column == manager.highlightedColumn ? Color.yellow.opacity(0.3) : Color.clear)
             .frame(width: cellSize, height: cellSize)
             .overlay(
                 ZStack {
@@ -124,7 +125,7 @@ struct ColumnCluesView: View {
                     Spacer().frame(maxHeight: 8)
                 }
                 .frame(width: cellSize, height: maxColumnClueHeight)
-                .background(GridStyle.clueBackgroundColor)
+                .background(column == manager.highlightedColumn ? Color.yellow.opacity(0.3) : GridStyle.clueBackgroundColor)
                 .overlay(
                     ZStack {
                         Rectangle()

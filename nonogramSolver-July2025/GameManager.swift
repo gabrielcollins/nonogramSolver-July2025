@@ -6,6 +6,8 @@ class GameManager: ObservableObject {
     @Published var rowClues: [[Int]]
     @Published var columnClues: [[Int]]
     @Published var highlightedRow: Int?
+    @Published var highlightedColumn: Int?
+    private var solvingRows = true
     private var rowCluesBySize: [Int: [[Int]]]
     private var columnCluesBySize: [Int: [[Int]]]
 
@@ -128,18 +130,38 @@ class GameManager: ObservableObject {
     }
 
     func stepSolve() {
-        if highlightedRow == nil {
-            highlightedRow = grid.rows - 1
-        }
+        if solvingRows {
+            if highlightedRow == nil {
+                highlightedRow = grid.rows - 1
+            }
 
-        guard let row = highlightedRow, row >= 0, row < grid.rows else { return }
+            guard let row = highlightedRow, row >= 0, row < grid.rows else { return }
 
-        solveRow(row)
+            solveRow(row)
 
-        if row > 0 {
-            highlightedRow = row - 1
+            if row > 0 {
+                highlightedRow = row - 1
+            } else {
+                highlightedRow = nil
+                solvingRows = false
+                highlightedColumn = 0
+            }
         } else {
-            highlightedRow = nil
+            if highlightedColumn == nil {
+                highlightedColumn = 0
+            }
+
+            guard let column = highlightedColumn, column >= 0, column < grid.columns else { return }
+
+            solveColumn(column)
+
+            if column < grid.columns - 1 {
+                highlightedColumn = column + 1
+            } else {
+                highlightedColumn = nil
+                solvingRows = true
+                highlightedRow = grid.rows - 1
+            }
         }
     }
 
@@ -154,6 +176,21 @@ class GameManager: ObservableObject {
 
         for column in 0..<current.count {
             let states = Set(permutations.map { $0[column] })
+            if states.count == 1, let state = states.first {
+                grid.tiles[row][column] = state
+            }
+        }
+    }
+
+    private func solveColumn(_ column: Int) {
+        guard column < grid.columns else { return }
+        let current = grid.tiles.map { $0[column] }
+        let clues = columnClues[column]
+        let permutations = generateLinePermutations(currentLineState: current, clues: clues)
+        guard !permutations.isEmpty else { return }
+
+        for row in 0..<current.count {
+            let states = Set(permutations.map { $0[row] })
             if states.count == 1, let state = states.first {
                 grid.tiles[row][column] = state
             }
