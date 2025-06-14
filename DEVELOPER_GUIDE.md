@@ -8,6 +8,7 @@ This document captures the current conventions, architecture and specifications 
 - **Persistence**: A `GameStateStore` actor conforming to `GameStateStoring` saves and loads the puzzle state as JSON using `FlatFileController` for atomic disk I/O.
 - **Strict Concurrency**: All state mutations occur on actors or via `@MainActor` objects. `GameManager` is marked `@MainActor`. Persistence actors isolate file operations.
 - **UI Features**: A basic grid view with row/column clues, controls for puzzle size, and placeholder "Auto Solve" and "Step Solve" buttons.
+- **Contradiction Detection**: The step solver halts when clues conflict with the current board and highlights the offending row or column in red.
 - **Builder Pattern**: `GameManagerBuilder` constructs and loads the model before any view accesses it, preventing concurrency issues on startup.
 - **Dependency Injection**: Persistence and puzzle loading use the `GameStateStoring` and `PuzzleLoading` protocols so different implementations can be supplied in tests or future features.
 - **Testing**: Unit tests exist for tile cycling and persistence. UI tests are present but still contain template code.
@@ -20,6 +21,7 @@ These align with the original _MacOS Solver App Development Plan_ in the reposit
   - Exposes methods to mutate the grid (`tap`), update clues, and change puzzle size.
   - Asynchronously saves the state after each mutation.
   - Dependencies for persistence are injected through the `GameStateStoring` protocol for easier testing.
+  - Detects contradictions during step solving. When no valid line permutation exists for a row or column, `contradictionRow` or `contradictionColumn` is set and solving halts until the user updates the clues.
 - **`GameStateStore` & `FlatFileController`**
   - `GameStateStore` implements `GameStateStoring`; `FlatFileController` performs disk I/O with atomic writes.
   - File name is fixed at `gamestate.json` in the user documents directory.

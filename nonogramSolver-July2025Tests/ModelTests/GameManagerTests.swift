@@ -125,4 +125,37 @@ final class GameManagerTests: XCTestCase {
         XCTAssertTrue(manager.rowClues.allSatisfy { $0.isEmpty })
         XCTAssertTrue(manager.columnClues.allSatisfy { $0.isEmpty })
     }
+
+    @MainActor
+    func testStepSolveDetectsRowContradiction() async {
+        let manager = GameManager()
+        manager.set(rows: 1, columns: 2)
+        manager.clearBoard()
+        manager.updateRowClue(row: 0, string: "3") // impossible
+        manager.updateColumnClue(column: 0, string: "")
+        manager.updateColumnClue(column: 1, string: "")
+
+        manager.stepSolve()
+
+        XCTAssertEqual(manager.contradictionRow, 0)
+        XCTAssertTrue(manager.contradictionEncountered)
+        XCTAssertEqual(manager.solvingStepCount, 0)
+    }
+
+    @MainActor
+    func testStepSolveDetectsColumnContradiction() async {
+        let manager = GameManager()
+        manager.set(rows: 1, columns: 2)
+        manager.clearBoard()
+        manager.updateRowClue(row: 0, string: "1")
+        manager.updateColumnClue(column: 0, string: "3") // impossible
+        manager.updateColumnClue(column: 1, string: "1")
+
+        manager.stepSolve() // process row
+        manager.stepSolve() // process column 0 -> contradiction
+
+        XCTAssertEqual(manager.contradictionColumn, 0)
+        XCTAssertTrue(manager.contradictionEncountered)
+        XCTAssertEqual(manager.solvingStepCount, 1)
+    }
 }
