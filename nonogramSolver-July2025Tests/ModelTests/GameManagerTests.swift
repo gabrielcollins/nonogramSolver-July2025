@@ -112,4 +112,17 @@ final class GameManagerTests: XCTestCase {
         XCTAssertEqual(manager.highlightedColumn, 1)
         XCTAssertEqual(manager.solvingStepCount, 1)
     }
+
+    @MainActor
+    func testClearRowAndColumnClues() async {
+        let manager = GameManager()
+        manager.updateRowClue(row: 0, string: "1 2")
+        manager.updateColumnClue(column: 0, string: "3")
+
+        manager.clearRowClues()
+        manager.clearColumnClues()
+
+        XCTAssertTrue(manager.rowClues.allSatisfy { $0.isEmpty })
+        XCTAssertTrue(manager.columnClues.allSatisfy { $0.isEmpty })
+    }
 }

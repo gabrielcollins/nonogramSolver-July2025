@@ -135,6 +135,18 @@ class GameManager: ObservableObject {
         Task { await save() }
     }
 
+    func clearRowClues() {
+        rowClues = Array(repeating: [], count: grid.rows)
+        rowCluesBySize[grid.rows] = rowClues
+        Task { await save() }
+    }
+
+    func clearColumnClues() {
+        columnClues = Array(repeating: [], count: grid.columns)
+        columnCluesBySize[grid.columns] = columnClues
+        Task { await save() }
+    }
+
     func clearBoard() {
         grid = PuzzleGrid(rows: grid.rows, columns: grid.columns)
         solvingRows = true

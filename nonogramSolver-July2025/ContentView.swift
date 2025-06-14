@@ -85,8 +85,16 @@ struct ContentView: View {
                         
                         HStack {
                             VStack(alignment: .leading) {
-                                Text("Row Clues:")
-                                    .font(.subheadline)
+                                HStack {
+                                    Text("Row Clues:")
+                                        .font(.subheadline)
+                                    Spacer()
+                                    Button("Clear Rows") {
+                                        manager.clearRowClues()
+                                    }
+                                    .font(.caption)
+                                    .buttonStyle(.bordered)
+                                }
                                 ForEach(0..<manager.grid.rows, id: \.self) { row in
                                     HStack {
                                         Text("R\(row+1):")
@@ -106,10 +114,18 @@ struct ContentView: View {
                                     }
                                 }
                             }
-                            
+
                             VStack(alignment: .leading) {
-                                Text("Column Clues:")
-                                    .font(.subheadline)
+                                HStack {
+                                    Text("Column Clues:")
+                                        .font(.subheadline)
+                                    Spacer()
+                                    Button("Clear Columns") {
+                                        manager.clearColumnClues()
+                                    }
+                                    .font(.caption)
+                                    .buttonStyle(.bordered)
+                                }
                                 ForEach(0..<manager.grid.columns, id: \.self) { column in
                                     HStack {
                                         Text("C\(column+1):")
