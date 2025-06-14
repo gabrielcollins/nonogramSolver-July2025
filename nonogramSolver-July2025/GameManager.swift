@@ -142,7 +142,7 @@ class GameManager: ObservableObject {
     func stepSolve() {
         if solvingRows {
             if highlightedRow == nil {
-                highlightedRow = grid.rows - 1
+                highlightedRow = previousUnsolvedRow(before: grid.rows)
             }
 
             guard let row = highlightedRow, row >= 0, row < grid.rows else { return }
@@ -150,16 +150,14 @@ class GameManager: ObservableObject {
             solveRow(row)
             solvingStepCount += 1
 
-            if row > 0 {
-                highlightedRow = row - 1
-            } else {
-                highlightedRow = nil
+            highlightedRow = previousUnsolvedRow(before: row)
+            if highlightedRow == nil {
                 solvingRows = false
-                highlightedColumn = 0
+                highlightedColumn = nextUnsolvedColumn(after: -1)
             }
         } else {
             if highlightedColumn == nil {
-                highlightedColumn = 0
+                highlightedColumn = nextUnsolvedColumn(after: -1)
             }
 
             guard let column = highlightedColumn, column >= 0, column < grid.columns else { return }
@@ -167,14 +165,43 @@ class GameManager: ObservableObject {
             solveColumn(column)
             solvingStepCount += 1
 
-            if column < grid.columns - 1 {
-                highlightedColumn = column + 1
-            } else {
-                highlightedColumn = nil
+            highlightedColumn = nextUnsolvedColumn(after: column)
+            if highlightedColumn == nil {
                 solvingRows = true
-                highlightedRow = grid.rows - 1
+                highlightedRow = previousUnsolvedRow(before: grid.rows)
             }
         }
+    }
+
+    private func isRowSolved(_ row: Int) -> Bool {
+        guard row >= 0 && row < grid.rows else { return true }
+        return !grid.tiles[row].contains(.unmarked)
+    }
+
+    private func isColumnSolved(_ column: Int) -> Bool {
+        guard column >= 0 && column < grid.columns else { return true }
+        for row in 0..<grid.rows {
+            if grid.tiles[row][column] == .unmarked { return false }
+        }
+        return true
+    }
+
+    private func previousUnsolvedRow(before index: Int) -> Int? {
+        var i = index - 1
+        while i >= 0 {
+            if !isRowSolved(i) { return i }
+            i -= 1
+        }
+        return nil
+    }
+
+    private func nextUnsolvedColumn(after index: Int) -> Int? {
+        var i = index + 1
+        while i < grid.columns {
+            if !isColumnSolved(i) { return i }
+            i += 1
+        }
+        return nil
     }
 
     // MARK: - Line Solving

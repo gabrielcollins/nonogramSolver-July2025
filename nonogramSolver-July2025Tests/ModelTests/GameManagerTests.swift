@@ -49,4 +49,20 @@ final class GameManagerTests: XCTestCase {
         XCTAssertNil(manager.highlightedColumn)
         XCTAssertEqual(manager.solvingStepCount, 0)
     }
+
+    @MainActor
+    func testStepSolveSkipsSolvedRows() async {
+        let manager = GameManager()
+        manager.set(rows: 3, columns: 1)
+        for row in 0..<3 { manager.updateRowClue(row: row, string: "") }
+        manager.updateColumnClue(column: 0, string: "")
+
+        // mark middle row solved
+        manager.tap(row: 1, column: 0)
+
+        manager.stepSolve()
+
+        XCTAssertEqual(manager.highlightedRow, 0)
+        XCTAssertEqual(manager.solvingStepCount, 1)
+    }
 }
