@@ -169,7 +169,6 @@ final class GameManagerTests: XCTestCase {
             manager.updateColumnClue(column: i, string: "1")
         }
 
-        manager.lastSolvedClues = "R2"
         for _ in 0..<4 { manager.stepSolve() }
 
         XCTAssertTrue(manager.unsolvableByStep)
