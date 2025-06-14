@@ -11,6 +11,9 @@ struct ClueEntryView: View {
                     get: { manager.rowClues[row].map(String.init).joined(separator: " ") },
                     set: { manager.updateRowClue(row: row, string: $0) }
                 ))
+                    .onSubmit {
+                        manager.updateRowClue(row: row, string: manager.rowClues[row].map(String.init).joined(separator: " "))
+                    }
                     .textFieldStyle(.roundedBorder)
             }
             Text("Column Clues")
@@ -19,6 +22,9 @@ struct ClueEntryView: View {
                     get: { manager.columnClues[column].map(String.init).joined(separator: " ") },
                     set: { manager.updateColumnClue(column: column, string: $0) }
                 ))
+                    .onSubmit {
+                        manager.updateColumnClue(column: column, string: manager.columnClues[column].map(String.init).joined(separator: " "))
+                    }
                     .textFieldStyle(.roundedBorder)
             }
         }

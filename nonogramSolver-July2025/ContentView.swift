@@ -76,7 +76,7 @@ struct ContentView: View {
                             VStack(alignment: .leading) {
                                 Text("Row Clues:")
                                     .font(.subheadline)
-                                ForEach(0..<min(5, manager.grid.rows), id: \.self) { row in
+                                ForEach(0..<manager.grid.rows, id: \.self) { row in
                                     HStack {
                                         Text("R\(row+1):")
                                             .frame(width: 30, alignment: .leading)
@@ -84,6 +84,9 @@ struct ContentView: View {
                                             get: { manager.rowClues[row].map(String.init).joined(separator: " ") },
                                             set: { manager.updateRowClue(row: row, string: $0) }
                                         ))
+                                        .onSubmit {
+                                            manager.updateRowClue(row: row, string: manager.rowClues[row].map(String.init).joined(separator: " "))
+                                        }
                                         .textFieldStyle(.roundedBorder)
                                     }
                                 }
@@ -92,7 +95,7 @@ struct ContentView: View {
                             VStack(alignment: .leading) {
                                 Text("Column Clues:")
                                     .font(.subheadline)
-                                ForEach(0..<min(5, manager.grid.columns), id: \.self) { column in
+                                ForEach(0..<manager.grid.columns, id: \.self) { column in
                                     HStack {
                                         Text("C\(column+1):")
                                             .frame(width: 30, alignment: .leading)
@@ -100,6 +103,9 @@ struct ContentView: View {
                                             get: { manager.columnClues[column].map(String.init).joined(separator: " ") },
                                             set: { manager.updateColumnClue(column: column, string: $0) }
                                         ))
+                                        .onSubmit {
+                                            manager.updateColumnClue(column: column, string: manager.columnClues[column].map(String.init).joined(separator: " "))
+                                        }
                                         .textFieldStyle(.roundedBorder)
                                     }
                                 }
