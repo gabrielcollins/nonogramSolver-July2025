@@ -9,10 +9,11 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
-                NonogramGridView(manager: manager)
-                
-                VStack(spacing: 15) {
+            ScrollView {
+                VStack(spacing: 20) {
+                    NonogramGridView(manager: manager)
+                    
+                    VStack(spacing: 15) {
                     // Grid controls and solve buttons
                     VStack(spacing: 10) {
                         HStack(spacing: 20) {
@@ -124,8 +125,10 @@ struct ContentView: View {
                     .background(Color.gray.opacity(0.1))
                     .cornerRadius(8)
                 }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .padding()
             }
-            .padding()
             .navigationTitle("Nonogram Solver")
         }
     }
