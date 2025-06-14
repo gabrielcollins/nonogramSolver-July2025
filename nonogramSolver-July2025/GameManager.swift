@@ -125,6 +125,14 @@ class GameManager: ObservableObject {
         Task { await save() }
     }
 
+    func clearBoard() {
+        grid = PuzzleGrid(rows: grid.rows, columns: grid.columns)
+        solvingRows = true
+        highlightedRow = grid.rows - 1
+        highlightedColumn = nil
+        Task { await save() }
+    }
+
     func autoSolve() {
         // stub
     }
