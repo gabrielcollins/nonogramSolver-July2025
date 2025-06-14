@@ -40,6 +40,7 @@ class GameManager: ObservableObject {
         self.rowCluesBySize = rowCluesBySize
         self.columnCluesBySize = columnCluesBySize
         self.store = store
+        self.lastSolvedClues = "R\(grid.rows)"
     }
 
     convenience init(store: GameStateStoring = GameStateStore()) {
@@ -100,10 +101,11 @@ class GameManager: ObservableObject {
         // Update all state atomically to prevent race conditions
         // Use objectWillChange to ensure UI updates happen properly
         objectWillChange.send()
-        
+
         grid = newGrid
         rowClues = newRowClues
         columnClues = newColumnClues
+        lastSolvedClues = "R\(rows)"
         
         // Update the dictionaries with the new arrays
         rowCluesBySize[rows] = newRowClues
@@ -172,13 +174,13 @@ class GameManager: ObservableObject {
         grid = PuzzleGrid(rows: grid.rows, columns: grid.columns)
         solvingRows = true
         highlightedRow = grid.rows - 1
+        lastSolvedClues = "R\(grid.rows)"
         highlightedColumn = nil
         errorRow = nil
         errorColumn = nil
         contradictionRow = nil
         contradictionColumn = nil
         contradictionEncountered = false
-        lastSolvedClues = nil
         unsolvableByStep = false
         solvingStepCount = 0
         Task { await save() }
