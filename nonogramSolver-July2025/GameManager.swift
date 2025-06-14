@@ -10,6 +10,9 @@ class GameManager: ObservableObject {
     // Row or column currently highlighted due to missing clues
     @Published var errorRow: Int?
     @Published var errorColumn: Int?
+    @Published var contradictionRow: Int?
+    @Published var contradictionColumn: Int?
+    @Published var contradictionEncountered: Bool = false
     @Published var solvingStepCount: Int = 0
     /// Returns `true` when no tiles remain in the `.unmarked` state.
     var isPuzzleSolved: Bool {
@@ -28,6 +31,9 @@ class GameManager: ObservableObject {
         self.columnClues = columnClues
         self.errorRow = nil
         self.errorColumn = nil
+        self.contradictionRow = nil
+        self.contradictionColumn = nil
+        self.contradictionEncountered = false
         self.rowCluesBySize = rowCluesBySize
         self.columnCluesBySize = columnCluesBySize
         self.store = store
@@ -125,6 +131,10 @@ class GameManager: ObservableObject {
         guard row < rowClues.count else { return }
         rowClues[row] = string.split(separator: " ").compactMap { Int($0) }
         rowCluesBySize[grid.rows] = rowClues
+        if row == contradictionRow {
+            contradictionRow = nil
+            contradictionEncountered = false
+        }
         Task { await save() }
     }
 
@@ -132,18 +142,26 @@ class GameManager: ObservableObject {
         guard column < columnClues.count else { return }
         columnClues[column] = string.split(separator: " ").compactMap { Int($0) }
         columnCluesBySize[grid.columns] = columnClues
+        if column == contradictionColumn {
+            contradictionColumn = nil
+            contradictionEncountered = false
+        }
         Task { await save() }
     }
 
     func clearRowClues() {
         rowClues = Array(repeating: [], count: grid.rows)
         rowCluesBySize[grid.rows] = rowClues
+        contradictionRow = nil
+        contradictionEncountered = false
         Task { await save() }
     }
 
     func clearColumnClues() {
         columnClues = Array(repeating: [], count: grid.columns)
         columnCluesBySize[grid.columns] = columnClues
+        contradictionColumn = nil
+        contradictionEncountered = false
         Task { await save() }
     }
 
@@ -154,6 +172,9 @@ class GameManager: ObservableObject {
         highlightedColumn = nil
         errorRow = nil
         errorColumn = nil
+        contradictionRow = nil
+        contradictionColumn = nil
+        contradictionEncountered = false
         solvingStepCount = 0
         Task { await save() }
     }
@@ -164,6 +185,7 @@ class GameManager: ObservableObject {
 
     func stepSolve() {
         guard !isPuzzleSolved else { return }
+        guard !contradictionEncountered else { return }
         if solvingRows {
             if let errorRow = errorRow {
                 self.errorRow = nil
@@ -186,7 +208,7 @@ class GameManager: ObservableObject {
                 return
             }
 
-            solveRow(row)
+            if !solveRow(row) { return }
             solvingStepCount += 1
 
             highlightedRow = previousUnsolvedRow(before: row)
@@ -216,7 +238,7 @@ class GameManager: ObservableObject {
                 return
             }
 
-            solveColumn(column)
+            if !solveColumn(column) { return }
             solvingStepCount += 1
 
             highlightedColumn = nextUnsolvedColumn(after: column)
@@ -260,12 +282,16 @@ class GameManager: ObservableObject {
 
     // MARK: - Line Solving
 
-    private func solveRow(_ row: Int) {
-        guard row < grid.rows else { return }
+    private func solveRow(_ row: Int) -> Bool {
+        guard row < grid.rows else { return true }
         let current = grid.tiles[row]
         let clues = rowClues[row]
         let permutations = generateLinePermutations(currentLineState: current, clues: clues)
-        guard !permutations.isEmpty else { return }
+        guard !permutations.isEmpty else {
+            contradictionRow = row
+            contradictionEncountered = true
+            return false
+        }
 
         for column in 0..<current.count {
             let states = Set(permutations.map { $0[column] })
@@ -273,14 +299,19 @@ class GameManager: ObservableObject {
                 grid.tiles[row][column] = state
             }
         }
+        return true
     }
 
-    private func solveColumn(_ column: Int) {
-        guard column < grid.columns else { return }
+    private func solveColumn(_ column: Int) -> Bool {
+        guard column < grid.columns else { return true }
         let current = grid.tiles.map { $0[column] }
         let clues = columnClues[column]
         let permutations = generateLinePermutations(currentLineState: current, clues: clues)
-        guard !permutations.isEmpty else { return }
+        guard !permutations.isEmpty else {
+            contradictionColumn = column
+            contradictionEncountered = true
+            return false
+        }
 
         for row in 0..<current.count {
             let states = Set(permutations.map { $0[row] })
@@ -288,6 +319,7 @@ class GameManager: ObservableObject {
                 grid.tiles[row][column] = state
             }
         }
+        return true
     }
 
     private func generateLinePermutations(currentLineState: [TileState], clues: [Int]) -> [[TileState]] {

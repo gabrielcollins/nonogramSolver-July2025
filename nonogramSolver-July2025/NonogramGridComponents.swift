@@ -58,7 +58,7 @@ struct GridCellView: View {
                 : TileState.unmarked.view
             )
             .background(
-                column == manager.errorColumn ? Color.red.opacity(0.3) :
+                (column == manager.errorColumn || column == manager.contradictionColumn) ? Color.red.opacity(0.3) :
                 (column == manager.highlightedColumn ? Color.yellow.opacity(0.3) : Color.clear)
             )
             .frame(width: cellSize, height: cellSize)
@@ -129,7 +129,7 @@ struct ColumnCluesView: View {
                 }
                 .frame(width: cellSize, height: maxColumnClueHeight)
                 .background(
-                    column == manager.errorColumn ? Color.red.opacity(0.3) :
+                    (column == manager.errorColumn || column == manager.contradictionColumn) ? Color.red.opacity(0.3) :
                     (column == manager.highlightedColumn ? Color.yellow.opacity(0.3) : GridStyle.clueBackgroundColor)
                 )
                 .overlay(
@@ -176,7 +176,7 @@ struct RowCluesView: View {
                 }
                 .frame(width: maxRowClueWidth, height: cellSize)
                 .background(
-                    row == manager.errorRow ? Color.red.opacity(0.3) :
+                    (row == manager.errorRow || row == manager.contradictionRow) ? Color.red.opacity(0.3) :
                     (row == manager.highlightedRow ? Color.yellow.opacity(0.3) : GridStyle.clueBackgroundColor)
                 )
                 .overlay(

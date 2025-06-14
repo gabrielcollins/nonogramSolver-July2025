@@ -61,7 +61,7 @@ struct ContentView: View {
                                     manager.stepSolve()
                                 }
                                 .buttonStyle(.bordered)
-                                .tint(manager.isPuzzleSolved ? .green : nil)
+                                .tint(manager.contradictionEncountered ? .red : (manager.isPuzzleSolved ? .green : nil))
                                 .disabled(manager.isPuzzleSolved)
 
                                 Button("Clear") {
@@ -70,9 +70,15 @@ struct ContentView: View {
                                 .buttonStyle(.bordered)
                             }
                         }
-                        Text(manager.isPuzzleSolved ? "Solved in \(manager.solvingStepCount) steps" : "Solving Steps: \(manager.solvingStepCount)")
-                            .font(.caption)
-                            .foregroundColor(manager.isPuzzleSolved ? .green : .primary)
+                        if manager.contradictionEncountered {
+                            Text("Contradiction encountered!")
+                                .font(.caption)
+                                .foregroundColor(.red)
+                        } else {
+                            Text(manager.isPuzzleSolved ? "Solved in \(manager.solvingStepCount) steps" : "Solving Steps: \(manager.solvingStepCount)")
+                                .font(.caption)
+                                .foregroundColor(manager.isPuzzleSolved ? .green : .primary)
+                        }
                     }
                     .padding()
                     .background(Color.gray.opacity(0.05))
