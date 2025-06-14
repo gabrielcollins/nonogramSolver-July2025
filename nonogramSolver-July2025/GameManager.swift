@@ -7,6 +7,9 @@ class GameManager: ObservableObject {
     @Published var columnClues: [[Int]]
     @Published var highlightedRow: Int?
     @Published var highlightedColumn: Int?
+    // Row or column currently highlighted due to missing clues
+    @Published var errorRow: Int?
+    @Published var errorColumn: Int?
     @Published var solvingStepCount: Int = 0
     /// Returns `true` when no tiles remain in the `.unmarked` state.
     var isPuzzleSolved: Bool {
@@ -23,6 +26,8 @@ class GameManager: ObservableObject {
         self.grid = grid
         self.rowClues = rowClues
         self.columnClues = columnClues
+        self.errorRow = nil
+        self.errorColumn = nil
         self.rowCluesBySize = rowCluesBySize
         self.columnCluesBySize = columnCluesBySize
         self.store = store
@@ -135,6 +140,8 @@ class GameManager: ObservableObject {
         solvingRows = true
         highlightedRow = grid.rows - 1
         highlightedColumn = nil
+        errorRow = nil
+        errorColumn = nil
         solvingStepCount = 0
         Task { await save() }
     }
@@ -146,11 +153,26 @@ class GameManager: ObservableObject {
     func stepSolve() {
         guard !isPuzzleSolved else { return }
         if solvingRows {
+            if let errorRow = errorRow {
+                self.errorRow = nil
+                highlightedRow = previousUnsolvedRow(before: errorRow)
+                if highlightedRow == nil {
+                    solvingRows = false
+                    highlightedColumn = nextUnsolvedColumn(after: -1)
+                }
+                return
+            }
+
             if highlightedRow == nil {
                 highlightedRow = previousUnsolvedRow(before: grid.rows)
             }
 
             guard let row = highlightedRow, row >= 0, row < grid.rows else { return }
+
+            if rowClues[row].isEmpty {
+                errorRow = row
+                return
+            }
 
             solveRow(row)
             solvingStepCount += 1
@@ -161,11 +183,26 @@ class GameManager: ObservableObject {
                 highlightedColumn = nextUnsolvedColumn(after: -1)
             }
         } else {
+            if let errorColumn = errorColumn {
+                self.errorColumn = nil
+                highlightedColumn = nextUnsolvedColumn(after: errorColumn)
+                if highlightedColumn == nil {
+                    solvingRows = true
+                    highlightedRow = previousUnsolvedRow(before: grid.rows)
+                }
+                return
+            }
+
             if highlightedColumn == nil {
                 highlightedColumn = nextUnsolvedColumn(after: -1)
             }
 
             guard let column = highlightedColumn, column >= 0, column < grid.columns else { return }
+
+            if columnClues[column].isEmpty {
+                errorColumn = column
+                return
+            }
 
             solveColumn(column)
             solvingStepCount += 1

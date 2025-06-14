@@ -75,4 +75,41 @@ final class GameManagerTests: XCTestCase {
         manager.clearBoard()
         XCTAssertFalse(manager.isPuzzleSolved)
     }
+
+    @MainActor
+    func testStepSolveHighlightsMissingRowClue() async {
+        let manager = GameManager()
+        manager.set(rows: 2, columns: 1)
+
+        manager.stepSolve()
+
+        XCTAssertEqual(manager.errorRow, 1)
+        XCTAssertEqual(manager.solvingStepCount, 0)
+
+        manager.stepSolve()
+
+        XCTAssertNil(manager.errorRow)
+        XCTAssertEqual(manager.highlightedRow, 0)
+        XCTAssertEqual(manager.solvingStepCount, 0)
+    }
+
+    @MainActor
+    func testStepSolveHighlightsMissingColumnClue() async {
+        let manager = GameManager()
+        manager.set(rows: 1, columns: 2)
+        manager.updateRowClue(row: 0, string: "1")
+
+        manager.stepSolve() // solve row
+
+        manager.stepSolve() // should flag first column
+
+        XCTAssertEqual(manager.errorColumn, 0)
+        XCTAssertEqual(manager.solvingStepCount, 1)
+
+        manager.stepSolve() // clear flag and move to next column
+
+        XCTAssertNil(manager.errorColumn)
+        XCTAssertEqual(manager.highlightedColumn, 1)
+        XCTAssertEqual(manager.solvingStepCount, 1)
+    }
 }
