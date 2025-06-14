@@ -5,6 +5,7 @@ class GameManager: ObservableObject {
     @Published private(set) var grid: PuzzleGrid
     @Published var rowClues: [[Int]]
     @Published var columnClues: [[Int]]
+    @Published var highlightedRow: Int?
     private var rowCluesBySize: [Int: [[Int]]]
     private var columnCluesBySize: [Int: [[Int]]]
 
@@ -127,6 +128,94 @@ class GameManager: ObservableObject {
     }
 
     func stepSolve() {
-        // stub
+        if highlightedRow == nil {
+            highlightedRow = grid.rows - 1
+        }
+
+        guard let row = highlightedRow, row >= 0, row < grid.rows else { return }
+
+        solveRow(row)
+
+        if row > 0 {
+            highlightedRow = row - 1
+        } else {
+            highlightedRow = nil
+        }
+    }
+
+    // MARK: - Line Solving
+
+    private func solveRow(_ row: Int) {
+        guard row < grid.rows else { return }
+        let current = grid.tiles[row]
+        let clues = rowClues[row]
+        let permutations = generateLinePermutations(currentLineState: current, clues: clues)
+        guard !permutations.isEmpty else { return }
+
+        for column in 0..<current.count {
+            let states = Set(permutations.map { $0[column] })
+            if states.count == 1, let state = states.first {
+                grid.tiles[row][column] = state
+            }
+        }
+    }
+
+    private func generateLinePermutations(currentLineState: [TileState], clues: [Int]) -> [[TileState]] {
+        var results: [[TileState]] = []
+        let length = currentLineState.count
+
+        func helper(_ index: Int, _ clueIndex: Int, _ line: [TileState]) {
+            if clueIndex == clues.count {
+                var candidate = line
+                for i in index..<length {
+                    if currentLineState[i] == .filled { return }
+                    if candidate[i] == .unmarked { candidate[i] = .empty }
+                }
+                results.append(candidate)
+                return
+            }
+
+            let clueLength = clues[clueIndex]
+            let remainingClues = clues.suffix(from: clueIndex + 1)
+            let minRemaining = remainingClues.reduce(0, +) + max(0, remainingClues.count)
+            guard index + clueLength + minRemaining <= length else { return }
+
+            for start in index...(length - clueLength - minRemaining) {
+                var newLine = line
+                var valid = true
+                for pos in index..<start {
+                    if currentLineState[pos] == .filled { valid = false; break }
+                    if newLine[pos] == .unmarked { newLine[pos] = .empty }
+                }
+                if !valid { continue }
+
+                for i in 0..<clueLength {
+                    let pos = start + i
+                    if currentLineState[pos] == .empty { valid = false; break }
+                    newLine[pos] = .filled
+                }
+                if !valid { continue }
+
+                var nextIndex = start + clueLength
+                if clueIndex < clues.count - 1 {
+                    if nextIndex >= length { continue }
+                    if currentLineState[nextIndex] == .filled { continue }
+                    if newLine[nextIndex] == .unmarked { newLine[nextIndex] = .empty }
+                    nextIndex += 1
+                }
+
+                helper(nextIndex, clueIndex + 1, newLine)
+            }
+        }
+
+        helper(0, 0, currentLineState)
+        return results.filter { candidate in
+            for i in 0..<length {
+                if currentLineState[i] != .unmarked && candidate[i] != currentLineState[i] {
+                    return false
+                }
+            }
+            return true
+        }
     }
 }

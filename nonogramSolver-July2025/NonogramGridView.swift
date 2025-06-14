@@ -56,6 +56,7 @@ struct NonogramGridView: View {
                                 GridCellView(manager: manager, row: row, column: column, cellSize: cellSize)
                             }
                         }
+                        .background(row == manager.highlightedRow ? Color.yellow.opacity(0.3) : Color.clear)
                     }
                 }
             }

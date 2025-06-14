@@ -168,7 +168,7 @@ struct RowCluesView: View {
                     Spacer().frame(maxWidth: 8)
                 }
                 .frame(width: maxRowClueWidth, height: cellSize)
-                .background(GridStyle.clueBackgroundColor)
+                .background(row == manager.highlightedRow ? Color.yellow.opacity(0.3) : GridStyle.clueBackgroundColor)
                 .overlay(
                     ZStack {
                         Rectangle()
