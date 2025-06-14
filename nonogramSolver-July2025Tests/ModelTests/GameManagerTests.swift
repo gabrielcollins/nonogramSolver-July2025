@@ -40,11 +40,13 @@ final class GameManagerTests: XCTestCase {
         let manager = GameManager()
         manager.tap(row: 0, column: 0)
         manager.stepSolve()
+        XCTAssertEqual(manager.solvingStepCount, 1)
 
         manager.clearBoard()
 
         XCTAssertTrue(manager.grid.tiles.flatMap { $0 }.allSatisfy { $0 == .unmarked })
         XCTAssertEqual(manager.highlightedRow, manager.grid.rows - 1)
         XCTAssertNil(manager.highlightedColumn)
+        XCTAssertEqual(manager.solvingStepCount, 0)
     }
 }
