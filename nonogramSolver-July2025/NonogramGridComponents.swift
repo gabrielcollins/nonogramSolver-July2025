@@ -57,7 +57,10 @@ struct GridCellView: View {
                 ? manager.grid.tiles[row][column].view
                 : TileState.unmarked.view
             )
-            .background(column == manager.highlightedColumn ? Color.yellow.opacity(0.3) : Color.clear)
+            .background(
+                column == manager.errorColumn ? Color.red.opacity(0.3) :
+                (column == manager.highlightedColumn ? Color.yellow.opacity(0.3) : Color.clear)
+            )
             .frame(width: cellSize, height: cellSize)
             .overlay(
                 ZStack {
@@ -125,7 +128,10 @@ struct ColumnCluesView: View {
                     Spacer().frame(maxHeight: 8)
                 }
                 .frame(width: cellSize, height: maxColumnClueHeight)
-                .background(column == manager.highlightedColumn ? Color.yellow.opacity(0.3) : GridStyle.clueBackgroundColor)
+                .background(
+                    column == manager.errorColumn ? Color.red.opacity(0.3) :
+                    (column == manager.highlightedColumn ? Color.yellow.opacity(0.3) : GridStyle.clueBackgroundColor)
+                )
                 .overlay(
                     ZStack {
                         Rectangle()
@@ -169,7 +175,10 @@ struct RowCluesView: View {
                     Spacer().frame(maxWidth: 8)
                 }
                 .frame(width: maxRowClueWidth, height: cellSize)
-                .background(row == manager.highlightedRow ? Color.yellow.opacity(0.3) : GridStyle.clueBackgroundColor)
+                .background(
+                    row == manager.errorRow ? Color.red.opacity(0.3) :
+                    (row == manager.highlightedRow ? Color.yellow.opacity(0.3) : GridStyle.clueBackgroundColor)
+                )
                 .overlay(
                     ZStack {
                         Rectangle()
