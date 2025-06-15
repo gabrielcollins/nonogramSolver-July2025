@@ -21,6 +21,20 @@ class GameManager: ObservableObject {
     var isPuzzleSolved: Bool {
         !grid.tiles.flatMap { $0 }.contains(.unmarked)
     }
+
+    /// JSON representation of the solved grid using 1 for filled and 0 for empty.
+    var solvedGridJSON: String {
+        let intGrid = grid.tiles.map { row in
+            row.map { $0 == .filled ? 1 : 0 }
+        }
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+        guard let data = try? encoder.encode(intGrid),
+              let string = String(data: data, encoding: .utf8) else {
+            return ""
+        }
+        return string
+    }
     private var solvingRows = true
     private var rowCluesBySize: [Int: [[Int]]]
     private var columnCluesBySize: [Int: [[Int]]]
