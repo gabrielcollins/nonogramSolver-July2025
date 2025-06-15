@@ -15,8 +15,22 @@ struct ContentView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    NonogramGridView(manager: manager)
-                    
+                    HStack(alignment: .top, spacing: 20) {
+                        NonogramGridView(manager: manager)
+
+                        if manager.isPuzzleSolved {
+                            ScrollView {
+                                Text(manager.solvedGridJSON)
+                                    .font(.system(.body, design: .monospaced))
+                                    .textSelection(.enabled)
+                                    .padding()
+                            }
+                            .frame(width: 250)
+                            .background(Color.gray.opacity(0.1))
+                            .cornerRadius(8)
+                        }
+                    }
+
                     VStack(spacing: 15) {
                     // Grid controls and solve buttons
                     VStack(spacing: 10) {
