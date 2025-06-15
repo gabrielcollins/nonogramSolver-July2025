@@ -18,17 +18,13 @@ struct ContentView: View {
                     HStack(alignment: .top, spacing: 20) {
                         NonogramGridView(manager: manager)
 
-                        if manager.isPuzzleSolved {
-                            ScrollView {
-                                Text(manager.solvedGridJSON)
-                                    .font(.system(.body, design: .monospaced))
-                                    .textSelection(.enabled)
-                                    .padding()
-                            }
-                            .frame(width: 250)
-                            .background(Color.gray.opacity(0.1))
-                            .cornerRadius(8)
+                        Button("Export Solution to JSON") {
+                            manager.copySolutionToClipboard()
                         }
+                        .frame(width: 250)
+                        .buttonStyle(.borderedProminent)
+                        .tint(manager.isPuzzleSolved ? .green : .gray)
+                        .disabled(!manager.isPuzzleSolved)
                     }
 
                     VStack(spacing: 15) {
