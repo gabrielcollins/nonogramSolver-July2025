@@ -24,17 +24,21 @@ class GameManager: ObservableObject {
     }
 
     /// JSON representation of the solved grid using 1 for filled and 0 for empty.
+    /// The result formats each row on a single line like:
+    /// ````
+    /// [
+    ///     [0,1,1],
+    ///     [1,0,0]
+    /// ]
+    /// ````
     var solvedGridJSON: String {
         let intGrid = grid.tiles.map { row in
             row.map { $0 == .filled ? 1 : 0 }
         }
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .prettyPrinted
-        guard let data = try? encoder.encode(intGrid),
-              let string = String(data: data, encoding: .utf8) else {
-            return ""
+        let rowStrings = intGrid.map { row in
+            "    [" + row.map(String.init).joined(separator: ",") + "]"
         }
-        return string
+        return "[\n" + rowStrings.joined(separator: ",\n") + "\n]"
     }
 
     /// Copies the solved grid JSON representation to the system pasteboard.
