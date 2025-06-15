@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 @MainActor
 class GameManager: ObservableObject {
@@ -34,6 +35,13 @@ class GameManager: ObservableObject {
             return ""
         }
         return string
+    }
+
+    /// Copies the solved grid JSON representation to the system pasteboard.
+    func copySolutionToClipboard() {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(solvedGridJSON, forType: .string)
     }
     private var solvingRows = true
     private var rowCluesBySize: [Int: [[Int]]]
