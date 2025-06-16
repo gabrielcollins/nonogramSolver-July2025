@@ -143,7 +143,7 @@ class GameManager: ObservableObject {
 
     func tap(row: Int, column: Int) {
         guard row < grid.rows, column < grid.columns,
-              row < grid.tiles.count, 
+              row < grid.tiles.count,
               row >= 0 && column >= 0 && column < grid.tiles[row].count else { return }
         let current = grid.tiles[row][column]
         let next: TileState
@@ -156,6 +156,12 @@ class GameManager: ObservableObject {
             next = .unmarked
         }
         grid.tiles[row][column] = next
+        // Update the clues for the affected row and column
+        rowClues[row] = clues(from: grid.tiles[row])
+        let columnStates = grid.tiles.map { $0[column] }
+        columnClues[column] = clues(from: columnStates)
+        rowCluesBySize[grid.rows] = rowClues
+        columnCluesBySize[grid.columns] = columnClues
         Task { await save() }
     }
 
@@ -455,5 +461,22 @@ class GameManager: ObservableObject {
             }
             return true
         }
+    }
+
+    private func clues(from states: [TileState]) -> [Int] {
+        var result: [Int] = []
+        var count = 0
+        for state in states {
+            if state == .filled {
+                count += 1
+            } else if count > 0 {
+                result.append(count)
+                count = 0
+            }
+        }
+        if count > 0 {
+            result.append(count)
+        }
+        return result
     }
 }

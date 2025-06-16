@@ -16,6 +16,22 @@ final class GameManagerTests: XCTestCase {
     }
 
     @MainActor
+    func testTapUpdatesClues() async {
+        let manager = GameManager()
+        manager.set(rows: 2, columns: 2)
+
+        manager.tap(row: 0, column: 0)
+
+        XCTAssertEqual(manager.rowClues[0], [1])
+        XCTAssertEqual(manager.columnClues[0], [1])
+
+        manager.tap(row: 0, column: 1)
+
+        XCTAssertEqual(manager.rowClues[0], [2])
+        XCTAssertEqual(manager.columnClues[1], [1])
+    }
+
+    @MainActor
     func testSetGridPersistsClues() async {
         let store = InMemoryGameStateStore()
         let manager = GameManager(store: store)
