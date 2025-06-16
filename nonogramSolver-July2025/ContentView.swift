@@ -24,6 +24,13 @@ struct ContentView: View {
                         .frame(width: 250)
                         .buttonStyle(.borderedProminent)
                         .tint(.green)
+
+                        Button("Export Clues to JSON") {
+                            manager.copyCluesToClipboard()
+                        }
+                        .frame(width: 250)
+                        .buttonStyle(.borderedProminent)
+                        .tint(manager.hasCompleteClues ? .green : .gray)
                     }
 
                     VStack(spacing: 15) {

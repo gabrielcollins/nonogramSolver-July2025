@@ -42,11 +42,43 @@ class GameManager: ObservableObject {
         return "[\n" + rowStrings.joined(separator: ",\n") + "\n]"
     }
 
+    /// JSON representation of the current row and column clues. The output is
+    /// pretty printed and has the form:
+    /// ```
+    /// {
+    ///   "rowClues": [[1],[2]],
+    ///   "columnClues": [[1],[2]]
+    /// }
+    /// ```
+    var cluesJSON: String {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+        let object = ["rowClues": rowClues, "columnClues": columnClues]
+        guard let data = try? encoder.encode(object),
+              let string = String(data: data, encoding: .utf8) else {
+            return "{}"
+        }
+        return string
+    }
+
+    /// Returns `true` when every row and every column contains at least one
+    /// clue number.
+    var hasCompleteClues: Bool {
+        rowClues.allSatisfy { !$0.isEmpty } && columnClues.allSatisfy { !$0.isEmpty }
+    }
+
     /// Copies the grid JSON representation to the system pasteboard.
     func copyGridToClipboard() {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(gridJSON, forType: .string)
+    }
+
+    /// Copies the clues JSON representation to the system pasteboard.
+    func copyCluesToClipboard() {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(cluesJSON, forType: .string)
     }
     private var solvingRows = true
     private var rowCluesBySize: [Int: [[Int]]]
