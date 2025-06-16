@@ -18,13 +18,12 @@ struct ContentView: View {
                     HStack(alignment: .top, spacing: 20) {
                         NonogramGridView(manager: manager)
 
-                        Button("Export Solution to JSON") {
-                            manager.copySolutionToClipboard()
+                        Button("Export Grid to JSON") {
+                            manager.copyGridToClipboard()
                         }
                         .frame(width: 250)
                         .buttonStyle(.borderedProminent)
-                        .tint(manager.isPuzzleSolved ? .green : .gray)
-                        .disabled(!manager.isPuzzleSolved)
+                        .tint(.green)
                     }
 
                     VStack(spacing: 15) {
