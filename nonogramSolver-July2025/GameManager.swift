@@ -23,15 +23,16 @@ class GameManager: ObservableObject {
         !grid.tiles.flatMap { $0 }.contains(.unmarked)
     }
 
-    /// JSON representation of the solved grid using 1 for filled and 0 for empty.
-    /// The result formats each row on a single line like:
+    /// JSON representation of the current grid using `1` for `.filled` tiles and
+    /// `0` for both `.empty` and `.unmarked`. The result formats each row on a
+    /// single line like:
     /// ````
     /// [
     ///     [0,1,1],
     ///     [1,0,0]
     /// ]
     /// ````
-    var solvedGridJSON: String {
+    var gridJSON: String {
         let intGrid = grid.tiles.map { row in
             row.map { $0 == .filled ? 1 : 0 }
         }
@@ -41,11 +42,11 @@ class GameManager: ObservableObject {
         return "[\n" + rowStrings.joined(separator: ",\n") + "\n]"
     }
 
-    /// Copies the solved grid JSON representation to the system pasteboard.
-    func copySolutionToClipboard() {
+    /// Copies the grid JSON representation to the system pasteboard.
+    func copyGridToClipboard() {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
-        pasteboard.setString(solvedGridJSON, forType: .string)
+        pasteboard.setString(gridJSON, forType: .string)
     }
     private var solvingRows = true
     private var rowCluesBySize: [Int: [[Int]]]
