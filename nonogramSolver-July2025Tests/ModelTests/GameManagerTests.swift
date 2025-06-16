@@ -230,4 +230,25 @@ final class GameManagerTests: XCTestCase {
 
         XCTAssertTrue(manager.unsolvableByStep)
     }
+
+    @MainActor
+    func testHasCompleteCluesAndCluesJSON() async throws {
+        let manager = GameManager()
+        manager.set(rows: 2, columns: 2)
+
+        XCTAssertFalse(manager.hasCompleteClues)
+
+        for i in 0..<2 {
+            manager.updateRowClue(row: i, string: "1")
+            manager.updateColumnClue(column: i, string: "1")
+        }
+
+        XCTAssertTrue(manager.hasCompleteClues)
+
+        let jsonData = manager.cluesJSON.data(using: .utf8)!
+        struct Clues: Decodable { let rowClues: [[Int]]; let columnClues: [[Int]] }
+        let decoded = try JSONDecoder().decode(Clues.self, from: jsonData)
+        XCTAssertEqual(decoded.rowClues.count, 2)
+        XCTAssertEqual(decoded.columnClues.count, 2)
+    }
 }
