@@ -25,7 +25,7 @@ final class BulkClueEntryTests: XCTestCase {
     }
 
     func testParserRejectsInvalidArray() {
-        let text = "[[1],[-2]]" // negative number and invalid count
+        let text = "[[1],[-2],[3],[4],[5]]"
         let result = BulkClueParser.parse(text)
         switch result {
         case .failure(let error):
@@ -33,6 +33,24 @@ final class BulkClueEntryTests: XCTestCase {
         default:
             XCTFail("Expected failure")
         }
+    }
+
+    func testParserValidationOrderRejectsTooFewArraysFirst() {
+        XCTAssertParserFailure("[[1],[-2]]", equals: .tooFew)
+    }
+
+    func testParserValidationOrderRejectsTooManyArraysBeforeNonPositiveNumbers() {
+        let clues = Array(repeating: "[1]", count: 40) + ["[-1]"]
+        XCTAssertParserFailure("[\(clues.joined(separator: ","))]", equals: .tooMany)
+    }
+
+    func testParserValidationOrderRejectsNonMultipleOfFiveBeforeNonPositiveNumbers() {
+        XCTAssertParserFailure("[[1],[2],[3],[4],[5],[-1]]", equals: .notMultipleOfFive)
+    }
+
+    func testParserValidationOrderRejectsNonPositiveNumbersForValidCounts() {
+        XCTAssertParserFailure("[[1],[0],[3],[4],[5]]", equals: .nonPositiveNumbers)
+        XCTAssertParserFailure("[[1],[-2],[3],[4],[5]]", equals: .nonPositiveNumbers)
     }
 
     @MainActor
@@ -49,5 +67,20 @@ final class BulkClueEntryTests: XCTestCase {
         let saved = await store.load()
         XCTAssertEqual(saved?.rowCluesBySize[5]?.count, 5)
         XCTAssertEqual(saved?.columnCluesBySize[5]?.count, 5)
+    }
+
+    private func XCTAssertParserFailure(
+        _ text: String,
+        equals expectedError: BulkClueParser.ParseError,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let result = BulkClueParser.parse(text)
+        switch result {
+        case .failure(let error):
+            XCTAssertEqual(error, expectedError, file: file, line: line)
+        case .success(let clues):
+            XCTFail("Expected failure, got \(clues)", file: file, line: line)
+        }
     }
 }
