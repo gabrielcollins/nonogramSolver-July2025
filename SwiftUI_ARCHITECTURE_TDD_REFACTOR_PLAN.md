@@ -108,10 +108,10 @@ Add solver characterization tests:
 - Traversal order is pinned: rows are solved bottom-up (`previousUnsolvedRow(before:)`), columns left-to-right, alternating row phase then column phase. This order is user-visible via highlighting and step counts, and every step-count assertion depends on it.
 - The unsolvable-loop detection mechanism itself has a test. Detection works by comparing the `lastSolvedClues` string sentinel (`"R5"` / `"C3"`) against the next highlighted line, and the sentinel is initialized to `"R\(grid.rows)"` in three places. This is the piece most likely to break silently during extraction.
 
-Characterize the current quirks and decide whether each is intended before porting it:
+Characterize the current quirks. Two decisions have been made (driven by the puzzle-authoring workflow with `nonogramImageCreator` — see "Authoring Integration" below):
 
-- **Sticky unsolvable state.** Once `unsolvableByStep` is set, editing a clue via `updateRowClue` / `updateColumnClue` does not reset it; only `clearBoard()` does. Because the UI disables both solve buttons on `unsolvableByStep`, a user who fixes a clue still cannot solve without clearing the board. `tap()` likewise does not reset contradiction or unsolvable state. This may be a latent UX bug; decide intended behavior now so the refactor does not faithfully port a bug into the store.
-- **Tap overwrites hand-entered clues.** Tapping a tile recomputes that row's and column's clues from grid contents. The app effectively has two implicit modes — "draw and derive clues" vs. "enter clues and solve" — and tapping while in solve mode destroys entered clues. Pin this with a test and account for it in the store design.
+- **Sticky unsolvable state.** Once `unsolvableByStep` is set, editing a clue via `updateRowClue` / `updateColumnClue` does not reset it; only `clearBoard()` does. Because the UI disables both solve buttons on `unsolvableByStep`, a user who fixes a clue still cannot solve without clearing the board. `tap()` likewise does not reset contradiction or unsolvable state. This remains a latent UX bug to resolve during the store redesign. Related decision (made): the state's *meaning* is "no further progress with line logic," not "invalid puzzle" — in the authoring workflow a stalled puzzle is a candidate for a harder difficulty tier, not a broken one. Rename/relabel accordingly during Phase 4.
+- **Tap overwrites hand-entered clues — DECIDED: intended behavior.** Tapping a tile recomputes that row's and column's clues from grid contents. This is the app's editor mode: the authoring workflow imports a candidate matrix, hand-edits it by tapping with live clue derivation, then clears the board (clues are preserved) and solves. Pin with a characterization test as intended behavior, and design the store so grid-editing and clue-solving modes coexist cleanly.
 
 Important: these tests should target new pure types as soon as they exist. At first, they may call `GameManager`; after extraction, move them down to the domain layer.
 
@@ -341,6 +341,40 @@ Definition of done:
 - No compatibility adapter remains unless it has a clear purpose.
 - Documentation matches the code.
 - Unit tests pass.
+
+## Authoring Integration (Feature Work Alongside the Refactor)
+
+The app doubles as the **editor and verifier** in the puzzle-authoring
+workflow with `nonogramImageCreator` (see that repo's `GAME_PLAN.md`; the
+shared data contract is `docs/json-format.md` there). This is feature work,
+not refactoring, but the refactor should design for it. Features, roughly in
+order of need:
+
+- **Grid JSON import.** The mirror of the existing `gridJSON` export: paste or
+  load a 0/1 matrix, populate the grid tiles, and let clue derivation run.
+  Validate the 5-40 multiple-of-5 size constraint on import. Natural home:
+  alongside the Phase 3 export services and the Phase 4 store commands.
+- **Blank-line contract.** Imported/exported puzzles must contain no empty
+  rows or columns (the parser rejects `[0]`; the step solver treats `[]` as
+  missing input). Enforce at import; the long-term plan may add coordinated
+  `[0]` support instead.
+- **Relabel the stalled state.** `unsolvableByStep` means "no further progress
+  with line logic." Rename the property/UI text during Phase 4 so authors do
+  not read it as "invalid puzzle."
+- **Surface the step count as crude difficulty.** `solvingStepCount` at
+  completion approximates the literature's sweep-count difficulty metric.
+  Record/display it for accepted puzzles so the catalog gets a difficulty
+  ordering for free.
+- **Catalog export.** Accepted puzzles (grid + clues JSON) are saved into the
+  repo's `catalog/` folder — the catalog of record for the game app.
+- **Uniqueness note.** If the line solver fully completes a puzzle, the
+  solution is provably unique (every deduced cell is forced). Stage 1 of the
+  authoring plan publishes only line-solvable puzzles, so no uniqueness
+  validator is needed until harder tiers are admitted (long-term plan).
+
+Sequencing: grid import and catalog export can land any time after Phase 3
+(export/side-effect extraction); the relabel belongs in Phase 4's store API
+design; nothing here blocks Phases 0-2.
 
 ## Suggested Commit Sequence
 
