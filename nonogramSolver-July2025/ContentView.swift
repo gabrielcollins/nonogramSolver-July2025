@@ -181,6 +181,20 @@ struct ContentView: View {
                                 .buttonStyle(.bordered)
                             }
                         }
+                        HStack {
+                            Spacer()
+                            Text("Auto Solve Speed")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Picker("Auto Solve Speed", selection: $manager.autoSolveSpeed) {
+                                ForEach(AutoSolveSpeed.allCases) { speed in
+                                    Text(speed.rawValue).tag(speed)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                            .labelsHidden()
+                            .frame(width: 260)
+                        }
                         if manager.contradictionEncountered {
                             Text("Contradiction encountered!")
                                 .font(.caption)

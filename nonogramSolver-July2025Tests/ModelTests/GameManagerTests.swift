@@ -199,7 +199,7 @@ final class GameManagerTests: XCTestCase {
         manager.updateRowClue(row: 0, string: "1")
         manager.updateColumnClue(column: 0, string: "1")
 
-        manager.autoSolveStepDelayNanoseconds = 0
+        manager.autoSolveSpeed = .fastest
         await manager.autoSolve()
 
         XCTAssertTrue(manager.isPuzzleSolved)
@@ -213,7 +213,7 @@ final class GameManagerTests: XCTestCase {
         manager.updateRowClue(row: 0, string: "3")
         manager.updateColumnClue(column: 0, string: "1")
 
-        manager.autoSolveStepDelayNanoseconds = 0
+        manager.autoSolveSpeed = .fastest
         await manager.autoSolve()
 
         XCTAssertTrue(manager.contradictionEncountered)
@@ -230,10 +230,16 @@ final class GameManagerTests: XCTestCase {
             manager.updateColumnClue(column: i, string: "1")
         }
 
-        manager.autoSolveStepDelayNanoseconds = 0
+        manager.autoSolveSpeed = .fastest
         await manager.autoSolve()
 
         XCTAssertTrue(manager.unsolvableByStep)
+    }
+
+    func testAutoSolveSpeedDelays() {
+        XCTAssertEqual(AutoSolveSpeed.fastest.delayNanoseconds, 0)
+        XCTAssertLessThan(AutoSolveSpeed.medium.delayNanoseconds, AutoSolveSpeed.slow.delayNanoseconds)
+        XCTAssertEqual(AutoSolveSpeed.slow.delayNanoseconds, 200_000_000)
     }
 
     @MainActor
@@ -245,7 +251,7 @@ final class GameManagerTests: XCTestCase {
             manager.updateRowClue(row: i, string: "1")
             manager.updateColumnClue(column: i, string: "1")
         }
-        manager.autoSolveStepDelayNanoseconds = 0
+        manager.autoSolveSpeed = .fastest
         await manager.autoSolve()
         XCTAssertTrue(manager.unsolvableByStep)
         let firstRunSteps = manager.solvingStepCount
@@ -341,7 +347,7 @@ final class GameManagerTests: XCTestCase {
 
         manager.importGrid(matrix: matrix)
         manager.clearBoard()
-        manager.autoSolveStepDelayNanoseconds = 0
+        manager.autoSolveSpeed = .fastest
         await manager.autoSolve()
 
         XCTAssertTrue(manager.isPuzzleSolved)

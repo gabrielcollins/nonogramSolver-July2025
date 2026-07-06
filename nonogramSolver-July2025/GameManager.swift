@@ -1,6 +1,22 @@
 import SwiftUI
 import AppKit
 
+enum AutoSolveSpeed: String, CaseIterable, Identifiable {
+    case fastest = "Fastest"
+    case medium = "Medium"
+    case slow = "Slow"
+
+    var id: String { rawValue }
+
+    var delayNanoseconds: UInt64 {
+        switch self {
+        case .fastest: return 0
+        case .medium: return 100_000_000
+        case .slow: return 200_000_000
+        }
+    }
+}
+
 @MainActor
 class GameManager: ObservableObject {
     @Published private(set) var grid: PuzzleGrid
@@ -304,9 +320,8 @@ class GameManager: ObservableObject {
         Task { await save() }
     }
 
-    /// Delay between auto-solve steps so the user can watch progress.
-    /// Tests set this to zero to run deterministically fast.
-    var autoSolveStepDelayNanoseconds: UInt64 = 200_000_000
+    /// Stepping speed for auto-solve; tests use .fastest for determinism.
+    @Published var autoSolveSpeed: AutoSolveSpeed = .slow
 
     func autoSolve() async {
         if unsolvableByStep { clearBoard() }
@@ -317,8 +332,9 @@ class GameManager: ObservableObject {
             if isPuzzleSolved || contradictionEncountered || unsolvableByStep {
                 break
             }
-            if autoSolveStepDelayNanoseconds > 0 {
-                try? await Task.sleep(nanoseconds: autoSolveStepDelayNanoseconds)
+            let delay = autoSolveSpeed.delayNanoseconds
+            if delay > 0 {
+                try? await Task.sleep(nanoseconds: delay)
             }
         }
     }
