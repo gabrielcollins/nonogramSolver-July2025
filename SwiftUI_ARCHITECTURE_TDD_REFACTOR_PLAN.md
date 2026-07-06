@@ -1,5 +1,26 @@
 # SwiftUI Architecture TDD Refactor Plan
 
+## Status (updated 2026-07-05)
+
+- **Phase 0**: done except `SWIFT_VERSION` unification. Parser fixture fixed;
+  validation-order tests added; `autoSolve` delay injectable
+  (`autoSolveStepDelayNanoseconds`, tests pass zero); the remaining two
+  baseline failures (top-down traversal assumptions in
+  `testClearBoardResetsState` / `testStepSolveSkipsSolvedRows`) are marked
+  `XCTExpectFailure` pending Phase 1 re-pinning.
+- **Phase 2 (pulled forward in part)**: `LineSolver` extracted as a pure type
+  with design tests; `GameManager.solveRow/solveColumn` delegate to it. The
+  `lastSolvedClues` sentinel is GONE — replaced by full-sweep progress
+  tracking (`progressMadeDuringSweep` + `completeSweep()`) after a real
+  imported puzzle stalled `autoSolve` forever. Stalls display a yellow
+  "Beyond Simple Level" and the solve buttons restart from a cleared board.
+  (References to the sentinel in Phases 1-2 below are historical.)
+- **Authoring Integration**: grid JSON import landed (`PuzzleImportParser`,
+  `importGrid`, Import button + drag-and-drop zone); the stalled-state
+  relabel landed. Catalog export and step-count recording remain.
+- **Not started**: remaining Phase 1 characterization tests, clue-generation
+  extraction, Phase 3 export/clipboard extraction, Phases 4-8.
+
 This plan describes how to refactor the nonogram app toward the newer store-oriented SwiftUI architecture without changing behavior accidentally. The guiding rule is simple: every structural move should either be preceded by a characterization test or by a new behavior test that fails for the right reason.
 
 Note on the reference manual: the SwiftUI MV / Store manual is iOS-centric. Its Observation, store-ownership, environment, and testing guidance applies directly to this macOS app; ignore the SwiftData and NavigationStack sections, which are not used here.
