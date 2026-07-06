@@ -9,6 +9,7 @@ struct ContentView: View {
     @State private var bulkColumnError: String?
     @State private var showingPuzzleImporter = false
     @State private var importError: String?
+    @State private var importDropTargeted = false
 
     init(manager: GameManager) {
         _manager = StateObject(wrappedValue: manager)
@@ -35,7 +36,7 @@ struct ContentView: View {
                         .buttonStyle(.borderedProminent)
                         .tint(manager.hasCompleteClues ? .green : .gray)
 
-                        VStack {
+                        VStack(spacing: 8) {
                             Button("Import Puzzle JSON…") {
                                 showingPuzzleImporter = true
                             }
@@ -48,6 +49,34 @@ struct ContentView: View {
                             ) { result in
                                 importPuzzle(from: result)
                             }
+
+                            VStack(spacing: 4) {
+                                Image(systemName: "arrow.down.doc")
+                                    .font(.title3)
+                                Text("or drop a JSON file here")
+                                    .font(.caption)
+                            }
+                            .foregroundColor(importDropTargeted ? .blue : .secondary)
+                            .frame(width: 250, height: 64)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .strokeBorder(
+                                        importDropTargeted ? Color.blue : Color.secondary.opacity(0.5),
+                                        style: StrokeStyle(lineWidth: 1.5, dash: [6])
+                                    )
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(importDropTargeted ? Color.blue.opacity(0.1) : Color.clear)
+                                    )
+                            )
+                            .dropDestination(for: URL.self) { urls, _ in
+                                guard let url = urls.first else { return false }
+                                importPuzzle(url: url)
+                                return true
+                            } isTargeted: { targeted in
+                                importDropTargeted = targeted
+                            }
+
                             if let importError = importError {
                                 Text(importError)
                                     .foregroundColor(.red)
@@ -238,21 +267,25 @@ struct ContentView: View {
     private func importPuzzle(from result: Result<URL, Error>) {
         switch result {
         case .success(let url):
-            let accessing = url.startAccessingSecurityScopedResource()
-            defer { if accessing { url.stopAccessingSecurityScopedResource() } }
-            guard let data = try? Data(contentsOf: url) else {
-                importError = "Failed: could not read file"
-                return
-            }
-            switch PuzzleImportParser.parse(data) {
-            case .success(let matrix):
-                manager.importGrid(matrix: matrix)
-                importError = nil
-            case .failure(let error):
-                importError = "Failed: \(error.errorDescription ?? "Unknown error")"
-            }
+            importPuzzle(url: url)
         case .failure:
             importError = nil
+        }
+    }
+
+    private func importPuzzle(url: URL) {
+        let accessing = url.startAccessingSecurityScopedResource()
+        defer { if accessing { url.stopAccessingSecurityScopedResource() } }
+        guard let data = try? Data(contentsOf: url) else {
+            importError = "Failed: could not read file"
+            return
+        }
+        switch PuzzleImportParser.parse(data) {
+        case .success(let matrix):
+            manager.importGrid(matrix: matrix)
+            importError = nil
+        case .failure(let error):
+            importError = "Failed: \(error.errorDescription ?? "Unknown error")"
         }
     }
 
