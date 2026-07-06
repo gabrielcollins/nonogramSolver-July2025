@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct ContentView: View {
     @StateObject private var manager: GameManager
@@ -6,6 +7,8 @@ struct ContentView: View {
     @State private var bulkColumnText = ""
     @State private var bulkRowError: String?
     @State private var bulkColumnError: String?
+    @State private var showingPuzzleImporter = false
+    @State private var importError: String?
 
     init(manager: GameManager) {
         _manager = StateObject(wrappedValue: manager)
@@ -31,6 +34,27 @@ struct ContentView: View {
                         .frame(width: 250)
                         .buttonStyle(.borderedProminent)
                         .tint(manager.hasCompleteClues ? .green : .gray)
+
+                        VStack {
+                            Button("Import Puzzle JSON…") {
+                                showingPuzzleImporter = true
+                            }
+                            .frame(width: 250)
+                            .buttonStyle(.borderedProminent)
+                            .tint(.blue)
+                            .fileImporter(
+                                isPresented: $showingPuzzleImporter,
+                                allowedContentTypes: [.json, .plainText]
+                            ) { result in
+                                importPuzzle(from: result)
+                            }
+                            if let importError = importError {
+                                Text(importError)
+                                    .foregroundColor(.red)
+                                    .font(.caption)
+                                    .frame(width: 250)
+                            }
+                        }
                     }
 
                     VStack(spacing: 15) {
@@ -208,6 +232,27 @@ struct ContentView: View {
                 .padding()
             }
             .navigationTitle("Nonogram Solver")
+        }
+    }
+
+    private func importPuzzle(from result: Result<URL, Error>) {
+        switch result {
+        case .success(let url):
+            let accessing = url.startAccessingSecurityScopedResource()
+            defer { if accessing { url.stopAccessingSecurityScopedResource() } }
+            guard let data = try? Data(contentsOf: url) else {
+                importError = "Failed: could not read file"
+                return
+            }
+            switch PuzzleImportParser.parse(data) {
+            case .success(let matrix):
+                manager.importGrid(matrix: matrix)
+                importError = nil
+            case .failure(let error):
+                importError = "Failed: \(error.errorDescription ?? "Unknown error")"
+            }
+        case .failure:
+            importError = nil
         }
     }
 

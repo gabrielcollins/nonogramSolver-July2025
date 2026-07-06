@@ -249,6 +249,47 @@ class GameManager: ObservableObject {
         Task { await save() }
     }
 
+    /// Replaces the board with an imported 0/1 matrix (already validated by
+    /// `PuzzleImportParser`). Filled cells become `.filled`, empty cells stay
+    /// `.unmarked` so the puzzle remains editable and solvable. All clues are
+    /// re-derived from the matrix, exactly as tap-editing does.
+    func importGrid(matrix: [[Int]]) {
+        let rows = matrix.count
+        let columns = matrix.first?.count ?? 0
+        guard rows > 0, columns > 0 else { return }
+
+        rowCluesBySize[grid.rows] = rowClues
+        columnCluesBySize[grid.columns] = columnClues
+
+        var newGrid = PuzzleGrid(rows: rows, columns: columns)
+        for row in 0..<rows {
+            for column in 0..<columns where matrix[row][column] == 1 {
+                newGrid.tiles[row][column] = .filled
+            }
+        }
+
+        grid = newGrid
+        rowClues = grid.tiles.map { clues(from: $0) }
+        columnClues = (0..<columns).map { column in
+            clues(from: grid.tiles.map { $0[column] })
+        }
+        rowCluesBySize[rows] = rowClues
+        columnCluesBySize[columns] = columnClues
+
+        solvingRows = true
+        highlightedRow = nil
+        highlightedColumn = nil
+        errorRow = nil
+        errorColumn = nil
+        contradictionRow = nil
+        contradictionColumn = nil
+        contradictionEncountered = false
+        unsolvableByStep = false
+        solvingStepCount = 0
+        lastSolvedClues = "R\(rows)"
+        Task { await save() }
+    }
+
     func clearBoard() {
         grid = PuzzleGrid(rows: grid.rows, columns: grid.columns)
         solvingRows = true
@@ -265,6 +306,10 @@ class GameManager: ObservableObject {
         Task { await save() }
     }
 
+    /// Delay between auto-solve steps so the user can watch progress.
+    /// Tests set this to zero to run deterministically fast.
+    var autoSolveStepDelayNanoseconds: UInt64 = 200_000_000
+
     func autoSolve() async {
         while !isPuzzleSolved &&
               !contradictionEncountered &&
@@ -273,7 +318,9 @@ class GameManager: ObservableObject {
             if isPuzzleSolved || contradictionEncountered || unsolvableByStep {
                 break
             }
-            try? await Task.sleep(nanoseconds: 200_000_000)
+            if autoSolveStepDelayNanoseconds > 0 {
+                try? await Task.sleep(nanoseconds: autoSolveStepDelayNanoseconds)
+            }
         }
     }
 
