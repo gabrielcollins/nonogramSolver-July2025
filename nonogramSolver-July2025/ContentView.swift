@@ -1,6 +1,29 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
+/// Minimal document wrapper so exports go through the standard save panel.
+struct PuzzleJSONDocument: FileDocument {
+    static let readableContentTypes: [UTType] = [.json]
+
+    var text: String
+
+    init(text: String) {
+        self.text = text
+    }
+
+    init(configuration: ReadConfiguration) throws {
+        guard let data = configuration.file.regularFileContents,
+              let text = String(data: data, encoding: .utf8) else {
+            throw CocoaError(.fileReadCorruptFile)
+        }
+        self.text = text
+    }
+
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        FileWrapper(regularFileWithContents: Data(text.utf8))
+    }
+}
+
 struct ContentView: View {
     @StateObject private var manager: GameManager
     @State private var bulkRowText = ""
@@ -10,6 +33,8 @@ struct ContentView: View {
     @State private var showingPuzzleImporter = false
     @State private var importError: String?
     @State private var importDropTargeted = false
+    @State private var showingExporter = false
+    @State private var exportDocument: PuzzleJSONDocument?
 
     init(manager: GameManager) {
         _manager = StateObject(wrappedValue: manager)
@@ -23,18 +48,29 @@ struct ContentView: View {
                         NonogramGridView(manager: manager)
 
                         Button("Export Grid to JSON") {
-                            manager.copyGridToClipboard()
+                            exportDocument = PuzzleJSONDocument(text: manager.gridJSON)
+                            showingExporter = true
                         }
                         .frame(width: 250)
                         .buttonStyle(.borderedProminent)
                         .tint(.green)
 
                         Button("Export Clues to JSON") {
-                            manager.copyCluesToClipboard()
+                            exportDocument = PuzzleJSONDocument(text: manager.cluesJSON)
+                            showingExporter = true
                         }
                         .frame(width: 250)
                         .buttonStyle(.borderedProminent)
                         .tint(manager.hasCompleteClues ? .green : .gray)
+                        .disabled(!manager.hasCompleteClues)
+                        .fileExporter(
+                            isPresented: $showingExporter,
+                            document: exportDocument,
+                            contentType: .json,
+                            defaultFilename: "\(manager.grid.rows)-\(manager.grid.columns)-"
+                        ) { _ in
+                            exportDocument = nil
+                        }
 
                         VStack(spacing: 8) {
                             Button("Import Puzzle JSON…") {
