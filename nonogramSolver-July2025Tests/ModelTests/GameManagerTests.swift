@@ -179,7 +179,6 @@ final class GameManagerTests: XCTestCase {
 
     @MainActor
     func testStepSolveDetectsUnsolvableLoop() async {
-        XCTExpectFailure("Known failure (pre-refactor baseline): the lastSolvedClues sentinel only fires after some line makes progress; a board where no line ever progresses is never detected. Redesign scheduled as the Phase 2 sentinel replacement.")
         let manager = GameManager()
         manager.set(rows: 2, columns: 2)
         manager.clearBoard()
@@ -222,8 +221,7 @@ final class GameManagerTests: XCTestCase {
     }
 
     @MainActor
-    func testAutoSolveDetectsUnsolvableLoop() async throws {
-        throw XCTSkip("autoSolve never terminates when the unsolvable-loop sentinel cannot fire (no line ever progresses — same root cause as testStepSolveDetectsUnsolvableLoop). Hangs the suite; enable after the Phase 2 sentinel redesign.")
+    func testAutoSolveDetectsUnsolvableLoop() async {
         let manager = GameManager()
         manager.set(rows: 2, columns: 2)
         manager.clearBoard()
@@ -236,6 +234,34 @@ final class GameManagerTests: XCTestCase {
         await manager.autoSolve()
 
         XCTAssertTrue(manager.unsolvableByStep)
+    }
+
+    @MainActor
+    func testSolvingAgainAfterBeyondSimpleLevelRestartsFromScratch() async {
+        let manager = GameManager(store: InMemoryGameStateStore())
+        manager.set(rows: 2, columns: 2)
+        manager.clearBoard()
+        for i in 0..<2 {
+            manager.updateRowClue(row: i, string: "1")
+            manager.updateColumnClue(column: i, string: "1")
+        }
+        manager.autoSolveStepDelayNanoseconds = 0
+        await manager.autoSolve()
+        XCTAssertTrue(manager.unsolvableByStep)
+        let firstRunSteps = manager.solvingStepCount
+
+        // Step Solve restarts from a cleared board instead of being stuck.
+        manager.stepSolve()
+
+        XCTAssertFalse(manager.unsolvableByStep)
+        XCTAssertEqual(manager.solvingStepCount, 1)
+        XCTAssertEqual(manager.rowClues, [[1], [1]], "clues survive the restart")
+
+        // Auto Solve after a stall also restarts and re-detects cleanly.
+        await manager.autoSolve()
+
+        XCTAssertTrue(manager.unsolvableByStep)
+        XCTAssertEqual(manager.solvingStepCount, firstRunSteps, "restarted run repeats the same sweep")
     }
 
     @MainActor

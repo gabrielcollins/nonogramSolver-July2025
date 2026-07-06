@@ -100,15 +100,15 @@ struct ContentView: View {
                                     Task { await manager.autoSolve() }
                                 }
                                 .buttonStyle(.borderedProminent)
-                                .tint(manager.contradictionEncountered ? .red : (manager.unsolvableByStep ? .orange : (manager.isPuzzleSolved ? .green : nil)))
-                                .disabled(manager.isPuzzleSolved || manager.unsolvableByStep)
+                                .tint(manager.contradictionEncountered ? .red : (manager.unsolvableByStep ? .yellow : (manager.isPuzzleSolved ? .green : nil)))
+                                .disabled(manager.isPuzzleSolved)
 
                                 Button("Step Solve") {
                                     manager.stepSolve()
                                 }
                                 .buttonStyle(.bordered)
-                                .tint(manager.contradictionEncountered ? .red : (manager.unsolvableByStep ? .orange : (manager.isPuzzleSolved ? .green : nil)))
-                                .disabled(manager.isPuzzleSolved || manager.unsolvableByStep)
+                                .tint(manager.contradictionEncountered ? .red : (manager.unsolvableByStep ? .yellow : (manager.isPuzzleSolved ? .green : nil)))
+                                .disabled(manager.isPuzzleSolved)
 
                                 Button("Clear") {
                                     manager.clearBoard()
@@ -121,9 +121,9 @@ struct ContentView: View {
                                 .font(.caption)
                                 .foregroundColor(.red)
                         } else if manager.unsolvableByStep {
-                            Text("Not solvable by this method at \(manager.solvingStepCount) steps")
+                            Text("Beyond Simple Level")
                                 .font(.caption)
-                                .foregroundColor(.orange)
+                                .foregroundColor(.yellow)
                         } else {
                             Text(manager.isPuzzleSolved ? "Solved in \(manager.solvingStepCount) steps" : "Solving Steps: \(manager.solvingStepCount)")
                                 .font(.caption)

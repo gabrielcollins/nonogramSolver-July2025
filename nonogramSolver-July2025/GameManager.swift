@@ -15,9 +15,9 @@ class GameManager: ObservableObject {
     @Published var contradictionColumn: Int?
     @Published var contradictionEncountered: Bool = false
     @Published var solvingStepCount: Int = 0
-    @Published var lastSolvedClues: String?
     @Published var unsolvableByStep: Bool = false
     private var progressMadeDuringStep: Bool = false
+    private var progressMadeDuringSweep: Bool = false
     /// Returns `true` when no tiles remain in the `.unmarked` state.
     var isPuzzleSolved: Bool {
         !grid.tiles.flatMap { $0 }.contains(.unmarked)
@@ -99,7 +99,6 @@ class GameManager: ObservableObject {
         self.rowCluesBySize = rowCluesBySize
         self.columnCluesBySize = columnCluesBySize
         self.store = store
-        self.lastSolvedClues = "R\(grid.rows)"
     }
 
     convenience init(store: GameStateStoring = GameStateStore()) {
@@ -164,8 +163,7 @@ class GameManager: ObservableObject {
         grid = newGrid
         rowClues = newRowClues
         columnClues = newColumnClues
-        lastSolvedClues = "R\(rows)"
-        
+
         // Update the dictionaries with the new arrays
         rowCluesBySize[rows] = newRowClues
         columnCluesBySize[columns] = newColumnClues
@@ -277,6 +275,7 @@ class GameManager: ObservableObject {
         columnCluesBySize[columns] = columnClues
 
         solvingRows = true
+        progressMadeDuringSweep = false
         highlightedRow = nil
         highlightedColumn = nil
         errorRow = nil
@@ -286,15 +285,14 @@ class GameManager: ObservableObject {
         contradictionEncountered = false
         unsolvableByStep = false
         solvingStepCount = 0
-        lastSolvedClues = "R\(rows)"
         Task { await save() }
     }
 
     func clearBoard() {
         grid = PuzzleGrid(rows: grid.rows, columns: grid.columns)
         solvingRows = true
+        progressMadeDuringSweep = false
         highlightedRow = grid.rows - 1
-        lastSolvedClues = "R\(grid.rows)"
         highlightedColumn = nil
         errorRow = nil
         errorColumn = nil
@@ -311,6 +309,7 @@ class GameManager: ObservableObject {
     var autoSolveStepDelayNanoseconds: UInt64 = 200_000_000
 
     func autoSolve() async {
+        if unsolvableByStep { clearBoard() }
         while !isPuzzleSolved &&
               !contradictionEncountered &&
               !unsolvableByStep {
@@ -324,10 +323,23 @@ class GameManager: ObservableObject {
         }
     }
 
+    /// Marks the end of one full sweep (every unsolved row, then every
+    /// unsolved column). If no cell changed across the entire sweep, line
+    /// logic is exhausted and the puzzle is beyond the simple solving level.
+    private func completeSweep() {
+        if !progressMadeDuringSweep && !isPuzzleSolved {
+            unsolvableByStep = true
+        }
+        progressMadeDuringSweep = false
+    }
+
     func stepSolve() {
+        // "Beyond Simple Level" is a stop, not a dead end: solving again
+        // restarts from a cleared board (clues are preserved) so the author
+        // can hand-edit and re-verify.
+        if unsolvableByStep { clearBoard() }
         guard !isPuzzleSolved else { return }
         guard !contradictionEncountered else { return }
-        guard !unsolvableByStep else { return }
         progressMadeDuringStep = false
         if solvingRows {
             if let errorRow = errorRow {
@@ -354,22 +366,20 @@ class GameManager: ObservableObject {
             if !solveRow(row) { return }
             solvingStepCount += 1
             if progressMadeDuringStep {
-                lastSolvedClues = "R\(row + 1)"
-                unsolvableByStep = false
+                progressMadeDuringSweep = true
             }
 
             highlightedRow = previousUnsolvedRow(before: row)
             if highlightedRow == nil {
                 solvingRows = false
                 highlightedColumn = nextUnsolvedColumn(after: -1)
-            } else if !progressMadeDuringStep, let next = highlightedRow, lastSolvedClues == "R\(next + 1)" {
-                unsolvableByStep = true
             }
         } else {
             if let errorColumn = errorColumn {
                 self.errorColumn = nil
                 highlightedColumn = nextUnsolvedColumn(after: errorColumn)
                 if highlightedColumn == nil {
+                    completeSweep()
                     solvingRows = true
                     highlightedRow = previousUnsolvedRow(before: grid.rows)
                 }
@@ -390,16 +400,14 @@ class GameManager: ObservableObject {
             if !solveColumn(column) { return }
             solvingStepCount += 1
             if progressMadeDuringStep {
-                lastSolvedClues = "C\(column + 1)"
-                unsolvableByStep = false
+                progressMadeDuringSweep = true
             }
 
             highlightedColumn = nextUnsolvedColumn(after: column)
             if highlightedColumn == nil {
+                completeSweep()
                 solvingRows = true
                 highlightedRow = previousUnsolvedRow(before: grid.rows)
-            } else if !progressMadeDuringStep, let next = highlightedColumn, lastSolvedClues == "C\(next + 1)" {
-                unsolvableByStep = true
             }
         }
     }
