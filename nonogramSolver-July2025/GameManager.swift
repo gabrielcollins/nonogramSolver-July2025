@@ -392,104 +392,32 @@ class GameManager: ObservableObject {
 
     private func solveRow(_ row: Int) -> Bool {
         guard row < grid.rows else { return true }
-        let current = grid.tiles[row]
-        let clues = rowClues[row]
-        let permutations = generateLinePermutations(currentLineState: current, clues: clues)
-        guard !permutations.isEmpty else {
+        switch LineSolver.solve(line: grid.tiles[row], clues: rowClues[row]) {
+        case .contradiction:
             contradictionRow = row
             contradictionEncountered = true
             return false
-        }
-
-        for column in 0..<current.count {
-            let states = Set(permutations.map { $0[column] })
-            if states.count == 1, let state = states.first {
-                if grid.tiles[row][column] != state {
-                    grid.tiles[row][column] = state
-                    progressMadeDuringStep = true
-                }
+        case .deduced(let line):
+            for column in 0..<line.count where grid.tiles[row][column] != line[column] {
+                grid.tiles[row][column] = line[column]
+                progressMadeDuringStep = true
             }
+            return true
         }
-        return true
     }
 
     private func solveColumn(_ column: Int) -> Bool {
         guard column < grid.columns else { return true }
         let current = grid.tiles.map { $0[column] }
-        let clues = columnClues[column]
-        let permutations = generateLinePermutations(currentLineState: current, clues: clues)
-        guard !permutations.isEmpty else {
+        switch LineSolver.solve(line: current, clues: columnClues[column]) {
+        case .contradiction:
             contradictionColumn = column
             contradictionEncountered = true
             return false
-        }
-
-        for row in 0..<current.count {
-            let states = Set(permutations.map { $0[row] })
-            if states.count == 1, let state = states.first {
-                if grid.tiles[row][column] != state {
-                    grid.tiles[row][column] = state
-                    progressMadeDuringStep = true
-                }
-            }
-        }
-        return true
-    }
-
-    private func generateLinePermutations(currentLineState: [TileState], clues: [Int]) -> [[TileState]] {
-        var results: [[TileState]] = []
-        let length = currentLineState.count
-
-        func helper(_ index: Int, _ clueIndex: Int, _ line: [TileState]) {
-            if clueIndex == clues.count {
-                var candidate = line
-                for i in index..<length {
-                    if currentLineState[i] == .filled { return }
-                    if candidate[i] == .unmarked { candidate[i] = .empty }
-                }
-                results.append(candidate)
-                return
-            }
-
-            let clueLength = clues[clueIndex]
-            let remainingClues = clues.suffix(from: clueIndex + 1)
-            let minRemaining = remainingClues.reduce(0, +) + max(0, remainingClues.count)
-            guard index + clueLength + minRemaining <= length else { return }
-
-            for start in index...(length - clueLength - minRemaining) {
-                var newLine = line
-                var valid = true
-                for pos in index..<start {
-                    if currentLineState[pos] == .filled { valid = false; break }
-                    if newLine[pos] == .unmarked { newLine[pos] = .empty }
-                }
-                if !valid { continue }
-
-                for i in 0..<clueLength {
-                    let pos = start + i
-                    if currentLineState[pos] == .empty { valid = false; break }
-                    newLine[pos] = .filled
-                }
-                if !valid { continue }
-
-                var nextIndex = start + clueLength
-                if clueIndex < clues.count - 1 {
-                    if nextIndex >= length { continue }
-                    if currentLineState[nextIndex] == .filled { continue }
-                    if newLine[nextIndex] == .unmarked { newLine[nextIndex] = .empty }
-                    nextIndex += 1
-                }
-
-                helper(nextIndex, clueIndex + 1, newLine)
-            }
-        }
-
-        helper(0, 0, currentLineState)
-        return results.filter { candidate in
-            for i in 0..<length {
-                if currentLineState[i] != .unmarked && candidate[i] != currentLineState[i] {
-                    return false
-                }
+        case .deduced(let line):
+            for row in 0..<line.count where grid.tiles[row][column] != line[row] {
+                grid.tiles[row][column] = line[row]
+                progressMadeDuringStep = true
             }
             return true
         }
