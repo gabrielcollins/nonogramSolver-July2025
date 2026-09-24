@@ -35,6 +35,8 @@ struct ContentView: View {
     @State private var importDropTargeted = false
     @State private var showingExporter = false
     @State private var exportDocument: PuzzleJSONDocument?
+    @State private var pendingPuzzles: [PuzzleImportParser.ImportedPuzzle] = []
+    @State private var showingPuzzlePicker = false
 
     init(manager: GameManager) {
         _manager = StateObject(wrappedValue: manager)
@@ -47,29 +49,47 @@ struct ContentView: View {
                     HStack(alignment: .top, spacing: 20) {
                         NonogramGridView(manager: manager)
 
-                        Button("Export Grid to JSON") {
-                            exportDocument = PuzzleJSONDocument(text: manager.gridJSON)
-                            showingExporter = true
-                        }
-                        .frame(width: 250)
-                        .buttonStyle(.borderedProminent)
-                        .tint(.green)
+                        VStack(spacing: 8) {
+                            TextField("Puzzle name", text: $manager.puzzleName)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 250)
 
-                        Button("Export Clues to JSON") {
-                            exportDocument = PuzzleJSONDocument(text: manager.cluesJSON)
-                            showingExporter = true
-                        }
-                        .frame(width: 250)
-                        .buttonStyle(.borderedProminent)
-                        .tint(manager.hasCompleteClues ? .green : .gray)
-                        .disabled(!manager.hasCompleteClues)
-                        .fileExporter(
-                            isPresented: $showingExporter,
-                            document: exportDocument,
-                            contentType: .json,
-                            defaultFilename: "\(manager.grid.rows)-\(manager.grid.columns)-"
-                        ) { _ in
-                            exportDocument = nil
+                            Button("Export for iOS App") {
+                                exportDocument = PuzzleJSONDocument(text: manager.iosExportJSON)
+                                showingExporter = true
+                            }
+                            .frame(width: 250)
+                            .buttonStyle(.borderedProminent)
+                            .tint(manager.canExportForIOS ? .green : .gray)
+                            .disabled(!manager.canExportForIOS)
+                            .fileExporter(
+                                isPresented: $showingExporter,
+                                document: exportDocument,
+                                contentType: .json,
+                                defaultFilename: manager.iosExportFilename
+                            ) { _ in
+                                exportDocument = nil
+                            }
+
+                            // Surfaces exactly what the export will carry, so
+                            // the difficulty thresholds can be calibrated
+                            // against real puzzles rather than guessed at.
+                            VStack(spacing: 2) {
+                                if let blocker = manager.iosExportBlocker {
+                                    Text(blocker)
+                                        .foregroundColor(.orange)
+                                } else {
+                                    Text("id: \(manager.iosPuzzleID)")
+                                }
+                                if manager.difficultyIsMeasured {
+                                    Text("difficulty: \(manager.derivedDifficulty) — \(manager.solvingStepCount) steps, \(String(format: "%.1f", manager.solverSweeps)) sweeps")
+                                } else {
+                                    Text("difficulty: medium (unverified — solve to measure)")
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            .font(.caption)
+                            .frame(width: 250)
                         }
 
                         VStack(spacing: 8) {
@@ -311,6 +331,16 @@ struct ContentView: View {
                 .padding()
             }
             .navigationTitle("Nonogram Solver")
+            .sheet(isPresented: $showingPuzzlePicker) {
+                PuzzlePickerView(puzzles: pendingPuzzles) { puzzle in
+                    load(puzzle)
+                    showingPuzzlePicker = false
+                    pendingPuzzles = []
+                } onCancel: {
+                    showingPuzzlePicker = false
+                    pendingPuzzles = []
+                }
+            }
         }
     }
 
@@ -330,12 +360,28 @@ struct ContentView: View {
             importError = "Failed: could not read file"
             return
         }
-        switch PuzzleImportParser.parse(data) {
-        case .success(let matrix):
-            manager.importGrid(matrix: matrix)
+        switch PuzzleImportParser.parsePuzzles(data) {
+        case .success(let puzzles):
             importError = nil
+            // A set can hold many puzzles; picking blind would silently load
+            // the wrong one, so anything past the first goes to a picker.
+            if puzzles.count == 1, let only = puzzles.first {
+                load(only)
+            } else {
+                pendingPuzzles = puzzles
+                showingPuzzlePicker = true
+            }
         case .failure(let error):
             importError = "Failed: \(error.errorDescription ?? "Unknown error")"
+        }
+    }
+
+    private func load(_ puzzle: PuzzleImportParser.ImportedPuzzle) {
+        manager.importGrid(matrix: puzzle.matrix)
+        // Carrying the name through keeps a round trip through the editor
+        // from silently dropping the puzzle's identity on re-export.
+        if let name = puzzle.name, !name.isEmpty {
+            manager.puzzleName = name
         }
     }
 
@@ -357,6 +403,43 @@ struct ContentView: View {
         case .failure(let error):
             bulkColumnError = "Failed: \(error.errorDescription ?? "Unknown error")"
         }
+    }
+}
+
+/// Lets the author pick which puzzle to load from a set holding several.
+struct PuzzlePickerView: View {
+    let puzzles: [PuzzleImportParser.ImportedPuzzle]
+    let onSelect: (PuzzleImportParser.ImportedPuzzle) -> Void
+    let onCancel: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Choose a puzzle")
+                .font(.headline)
+
+            List(Array(puzzles.enumerated()), id: \.offset) { index, puzzle in
+                Button {
+                    onSelect(puzzle)
+                } label: {
+                    HStack {
+                        Text(puzzle.name ?? "Puzzle \(index + 1)")
+                        Spacer()
+                        Text("\(puzzle.matrix.count)x\(puzzle.matrix.first?.count ?? 0)")
+                            .foregroundColor(.secondary)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+            .frame(minHeight: 200)
+
+            HStack {
+                Spacer()
+                Button("Cancel", action: onCancel)
+            }
+        }
+        .padding()
+        .frame(width: 320, height: 320)
     }
 }
 

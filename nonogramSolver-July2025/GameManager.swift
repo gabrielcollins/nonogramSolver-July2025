@@ -39,6 +39,18 @@ class GameManager: ObservableObject {
         !grid.tiles.flatMap { $0 }.contains(.unmarked)
     }
 
+    /// Display name for the puzzle, used to build the exported `name` and
+    /// `id`. The solver has no other notion of puzzle identity.
+    @Published var puzzleName: String = ""
+
+    /// The current grid as a 0/1 matrix, `1` for `.filled` and `0` for both
+    /// `.empty` and `.unmarked`.
+    var solutionMatrix: [[Int]] {
+        grid.tiles.map { row in
+            row.map { $0 == .filled ? 1 : 0 }
+        }
+    }
+
     /// JSON representation of the current grid using `1` for `.filled` tiles and
     /// `0` for both `.empty` and `.unmarked`. The result formats each row on a
     /// single line like:
@@ -49,10 +61,7 @@ class GameManager: ObservableObject {
     /// ]
     /// ````
     var gridJSON: String {
-        let intGrid = grid.tiles.map { row in
-            row.map { $0 == .filled ? 1 : 0 }
-        }
-        let rowStrings = intGrid.map { row in
+        let rowStrings = solutionMatrix.map { row in
             "    [" + row.map(String.init).joined(separator: ",") + "]"
         }
         return "[\n" + rowStrings.joined(separator: ",\n") + "\n]"
@@ -81,6 +90,133 @@ class GameManager: ObservableObject {
     /// clue number.
     var hasCompleteClues: Bool {
         rowClues.allSatisfy { !$0.isEmpty } && columnClues.allSatisfy { !$0.isEmpty }
+    }
+
+    // MARK: - iOS game export
+
+    /// Set name written into the export, and the name the game builds its
+    /// filename from (`PuzzleService.loadPuzzleSet` uses
+    /// `"\(setName.lowercased()).json"`).
+    static let exportSetName = "Testing"
+
+    /// Solver effort expressed in full sweeps of the board, which is what
+    /// makes it comparable across grid sizes: `solvingStepCount` counts one
+    /// step per *line* solved, so a 20x20 needs 40 steps just to look at every
+    /// line once, while a 10x10 needs 20.
+    var solverSweeps: Double {
+        let lines = grid.rows + grid.columns
+        guard lines > 0 else { return 0 }
+        return Double(solvingStepCount) / Double(lines)
+    }
+
+    /// Difficulty vocabulary, matching the puzzles already shipping in the
+    /// game (`medium`, `difficult`) rather than introducing a synonym. The
+    /// game itself only checks that the string is non-empty, so this is a
+    /// consistency choice, not a decoding requirement.
+    static let easyDifficulty = "easy"
+    static let mediumDifficulty = "medium"
+    static let difficultDifficulty = "difficult"
+
+    /// Crude difficulty from how many sweeps the line solver needed, the
+    /// measure the authoring workflow already uses.
+    ///
+    /// The thresholds are a starting calibration, not a law — the UI shows the
+    /// raw step count and sweep figure alongside so they can be tuned against
+    /// real puzzles. An unsolved board has no measurement to report and falls
+    /// back to medium.
+    var derivedDifficulty: String {
+        guard isPuzzleSolved, solvingStepCount > 0 else { return Self.mediumDifficulty }
+        switch solverSweeps {
+        case ..<2.0: return Self.easyDifficulty
+        case ..<3.5: return Self.mediumDifficulty
+        default: return Self.difficultDifficulty
+        }
+    }
+
+    /// `true` once the difficulty reflects a real solve rather than the
+    /// fallback.
+    var difficultyIsMeasured: Bool {
+        isPuzzleSolved && solvingStepCount > 0
+    }
+
+    /// Lowercased underscore form of the puzzle name, matching the id style of
+    /// the puzzles already shipping in the game (`testing_duck`).
+    ///
+    /// Pure string work, so it carries no actor isolation.
+    nonisolated static func slug(_ value: String) -> String {
+        let mapped = value.lowercased().map { character -> Character in
+            character.isLetter || character.isNumber ? character : "_"
+        }
+        return String(mapped)
+            .split(separator: "_", omittingEmptySubsequences: true)
+            .joined(separator: "_")
+    }
+
+    /// Identifier written into the export, e.g. `testing_new_mouse`.
+    var iosPuzzleID: String {
+        let name = Self.slug(puzzleName)
+        let set = Self.slug(Self.exportSetName)
+        return name.isEmpty ? set : "\(set)_\(name)"
+    }
+
+    /// Rows and columns with no filled cell. The shared contract forbids these
+    /// because the game's clue generator emits `[0]` for a blank line and the
+    /// bulk clue parser rejects it, so they must not reach an export.
+    var blankLines: (rows: [Int], columns: [Int]) {
+        let matrix = solutionMatrix
+        let rows = matrix.indices.filter { !matrix[$0].contains(1) }
+        let columns = (0 ..< grid.columns).filter { column in
+            !matrix.contains { $0[column] == 1 }
+        }
+        return (rows, columns)
+    }
+
+    /// Why an export is blocked, or `nil` when it is ready to write.
+    var iosExportBlocker: String? {
+        if puzzleName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return "Name the puzzle before exporting"
+        }
+        let blanks = blankLines
+        if !blanks.rows.isEmpty {
+            return "Blank rows not allowed: \(blanks.rows.map(String.init).joined(separator: ", "))"
+        }
+        if !blanks.columns.isEmpty {
+            return "Blank columns not allowed: \(blanks.columns.map(String.init).joined(separator: ", "))"
+        }
+        return nil
+    }
+
+    var canExportForIOS: Bool { iosExportBlocker == nil }
+
+    /// The current puzzle as an iOS game `PuzzleSet` containing one puzzle.
+    /// Clues are deliberately omitted: the game derives them from `solution`
+    /// at load time, so storing them would be data that could drift out of
+    /// agreement with the grid.
+    var iosExportJSON: String {
+        let name = puzzleName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let puzzle: [String: Any] = [
+            "id": iosPuzzleID,
+            "name": name,
+            "difficulty": derivedDifficulty,
+            "solution": solutionMatrix,
+        ]
+        let set: [String: Any] = [
+            "setName": Self.exportSetName,
+            "puzzles": [puzzle],
+        ]
+        guard let data = try? JSONSerialization.data(
+            withJSONObject: set,
+            options: [.prettyPrinted, .sortedKeys]
+        ), let string = String(data: data, encoding: .utf8) else {
+            return "{}"
+        }
+        return string
+    }
+
+    /// Default filename offered by the save panel.
+    var iosExportFilename: String {
+        let name = Self.slug(puzzleName)
+        return name.isEmpty ? "puzzle" : name
     }
 
     /// Copies the grid JSON representation to the system pasteboard.

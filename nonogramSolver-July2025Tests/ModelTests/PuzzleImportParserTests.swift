@@ -69,4 +69,62 @@ final class PuzzleImportParserTests: XCTestCase {
 
         XCTAssertEqual(PuzzleImportParser.parse("[\(rows)]"), .failure(.nonBinaryValues))
     }
+
+    // MARK: - iOS PuzzleSet sources
+
+    private func puzzleSetData(_ entries: [(String, [[Int]])], setName: String = "Testing") throws -> Data {
+        let puzzles = entries.map { name, matrix -> [String: Any] in
+            ["id": "testing_\(name.lowercased())", "name": name, "difficulty": "medium", "solution": matrix]
+        }
+        return try JSONSerialization.data(withJSONObject: ["setName": setName, "puzzles": puzzles])
+    }
+
+    func testParsesIOSPuzzleSet() throws {
+        let data = try puzzleSetData([("Mouse", validMatrix)])
+
+        XCTAssertEqual(PuzzleImportParser.parse(data), .success(validMatrix))
+    }
+
+    func testCarriesNamesThroughFromAPuzzleSet() throws {
+        let other = (0..<5).map { row in (0..<5).map { $0 == (4 - row) ? 1 : 0 } }
+        let data = try puzzleSetData([("Mouse", validMatrix), ("Duck", other)])
+
+        let result = try XCTUnwrap(try? PuzzleImportParser.parsePuzzles(data).get())
+
+        XCTAssertEqual(result.count, 2)
+        XCTAssertEqual(result.map(\.name), ["Mouse", "Duck"])
+        XCTAssertEqual(result.map(\.matrix), [validMatrix, other])
+    }
+
+    func testRejectsAPuzzleSetWithNoPuzzles() throws {
+        let data = try JSONSerialization.data(withJSONObject: ["setName": "Testing", "puzzles": []])
+
+        XCTAssertEqual(PuzzleImportParser.parsePuzzles(data), .failure(.emptySet))
+    }
+
+    func testRejectsTheWholeSetWhenOnePuzzleIsInvalid() throws {
+        // All-or-nothing: a bad entry must not import as a silent subset.
+        let ragged = [[1, 0, 1, 0, 1], [1, 0]]
+        let data = try puzzleSetData([("Good", validMatrix), ("Bad", ragged)])
+
+        XCTAssertEqual(PuzzleImportParser.parsePuzzles(data), .failure(.raggedRows))
+    }
+
+    func testBareMatrixCarriesNoName() throws {
+        let data = try JSONEncoder().encode(validMatrix)
+
+        let result = try XCTUnwrap(try? PuzzleImportParser.parsePuzzles(data).get())
+
+        XCTAssertEqual(result.count, 1)
+        XCTAssertNil(result[0].name)
+    }
+
+    func testCreatorExportCarriesItsName() throws {
+        let export: [String: Any] = ["name": "marmot_5x5", "matrix": validMatrix]
+        let data = try JSONSerialization.data(withJSONObject: export)
+
+        let result = try XCTUnwrap(try? PuzzleImportParser.parsePuzzles(data).get())
+
+        XCTAssertEqual(result[0].name, "marmot_5x5")
+    }
 }
