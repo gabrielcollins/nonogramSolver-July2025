@@ -39,9 +39,14 @@ class GameManager: ObservableObject {
         !grid.tiles.flatMap { $0 }.contains(.unmarked)
     }
 
-    /// Display name for the puzzle, used to build the exported `name` and
-    /// `id`. The solver has no other notion of puzzle identity.
+    /// Display name for the puzzle, written as the export's `name`. The solver
+    /// has no other notion of puzzle identity.
     @Published var puzzleName: String = ""
+
+    /// The imported file's `metadata` object, carried through to the export so
+    /// provenance written by other tools (`createdBy`, `sourceTitle`, `style`…)
+    /// survives an edit. Replaced by every import and cleared by a new grid size.
+    @Published var importedMetadata: [String: JSONValue] = [:]
 
     /// The current grid as a 0/1 matrix, `1` for `.filled` and `0` for both
     /// `.empty` and `.unmarked`.
@@ -93,11 +98,6 @@ class GameManager: ObservableObject {
     }
 
     // MARK: - iOS game export
-
-    /// Set name written into the export, and the name the game builds its
-    /// filename from (`PuzzleService.loadPuzzleSet` uses
-    /// `"\(setName.lowercased()).json"`).
-    static let exportSetName = "Testing"
 
     /// Solver effort expressed in full sweeps of the board, which is what
     /// makes it comparable across grid sizes: `solvingStepCount` counts one
@@ -152,13 +152,6 @@ class GameManager: ObservableObject {
             .joined(separator: "_")
     }
 
-    /// Identifier written into the export, e.g. `testing_new_mouse`.
-    var iosPuzzleID: String {
-        let name = Self.slug(puzzleName)
-        let set = Self.slug(Self.exportSetName)
-        return name.isEmpty ? set : "\(set)_\(name)"
-    }
-
     /// Rows and columns with no filled cell. The shared contract forbids these
     /// because the game's clue generator emits `[0]` for a blank line and the
     /// bulk clue parser rejects it, so they must not reach an export.
@@ -172,7 +165,7 @@ class GameManager: ObservableObject {
     }
 
     /// Why an export is blocked, or `nil` when it is ready to write.
-    var iosExportBlocker: String? {
+    var exportBlocker: String? {
         if puzzleName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return "Name the puzzle before exporting"
         }
@@ -186,37 +179,79 @@ class GameManager: ObservableObject {
         return nil
     }
 
-    var canExportForIOS: Bool { iosExportBlocker == nil }
+    var canExport: Bool { exportBlocker == nil }
 
-    /// The current puzzle as an iOS game `PuzzleSet` containing one puzzle.
-    /// Clues are deliberately omitted: the game derives them from `solution`
-    /// at load time, so storing them would be data that could drift out of
-    /// agreement with the grid.
-    var iosExportJSON: String {
-        let name = puzzleName.trimmingCharacters(in: .whitespacesAndNewlines)
-        let puzzle: [String: Any] = [
-            "id": iosPuzzleID,
-            "name": name,
-            "difficulty": derivedDifficulty,
-            "solution": solutionMatrix,
-        ]
-        let set: [String: Any] = [
-            "setName": Self.exportSetName,
-            "puzzles": [puzzle],
-        ]
-        guard let data = try? JSONSerialization.data(
-            withJSONObject: set,
-            options: [.prettyPrinted, .sortedKeys]
-        ), let string = String(data: data, encoding: .utf8) else {
-            return "{}"
+    /// `true` when the line solver itself completed the board: it took steps,
+    /// left no cell unknown, and never stalled or hit a contradiction. That
+    /// proves the solution is unique — the workflow's acceptance gate.
+    var lineSolverVerified: Bool {
+        difficultyIsMeasured && !unsolvableByStep && !contradictionEncountered
+    }
+
+    /// The export's `metadata`: the imported object, with the solver's own
+    /// result laid over it. `difficulty` comes from a measured solve, else the
+    /// imported value, else medium; `solverCheck` is `UNIQUE` or `unverified`
+    /// (the extractor's `solver_check.csv` vocabulary); `lineSteps` is written
+    /// only for a verified solve. A puzzle with no provenance credits this app.
+    var exportMetadata: [String: JSONValue] {
+        var metadata = importedMetadata
+        if metadata["createdBy"] == nil {
+            metadata["createdBy"] = .string("nonogramSolver")
         }
-        return string
+        if difficultyIsMeasured || metadata["difficulty"] == nil {
+            metadata["difficulty"] = .string(derivedDifficulty)
+        }
+        metadata["solverCheck"] = .string(lineSolverVerified ? "UNIQUE" : "unverified")
+        metadata["lineSteps"] = lineSolverVerified ? .integer(solvingStepCount) : nil
+        return metadata
+    }
+
+    /// The current puzzle in the authoring format the creator writes and the
+    /// shared contract defines (nonogramImageCreator/docs/json-format.md),
+    /// laid out for reading: keys in contract order, one matrix row per line,
+    /// each clue list and the metadata on one line. The creator's
+    /// `export_ios` merges this file into the game's `testing.json`.
+    var exportJSON: String {
+        let name = puzzleName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let matrix = solutionMatrix
+        let matrixRows = matrix.map { "    [\($0.map(String.init).joined(separator: ","))]" }
+        let metadata = exportMetadata.keys.sorted().map { key in
+            "\(Self.jsonText(.string(key))): \(Self.jsonText(exportMetadata[key] ?? .null))"
+        }
+        return """
+        {
+          "name": \(Self.jsonText(.string(name))),
+          "rows": \(matrix.count),
+          "columns": \(matrix.first?.count ?? 0),
+          "matrix": [
+        \(matrixRows.joined(separator: ",\n"))
+          ],
+          "rowClues": \(Self.clueText(rowClues)),
+          "columnClues": \(Self.clueText(columnClues)),
+          "metadata": {\(metadata.joined(separator: ", "))}
+        }
+
+        """
     }
 
     /// Default filename offered by the save panel.
-    var iosExportFilename: String {
+    var exportFilename: String {
         let name = Self.slug(puzzleName)
         return name.isEmpty ? "puzzle" : name
+    }
+
+    private static func clueText(_ clues: [[Int]]) -> String {
+        "[" + clues.map { "[\($0.map(String.init).joined(separator: ","))]" }.joined(separator: ",") + "]"
+    }
+
+    /// One JSON value as compact text, escaped by `JSONEncoder`.
+    private static func jsonText(_ value: JSONValue) -> String {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
+        guard let data = try? encoder.encode(value), let text = String(data: data, encoding: .utf8) else {
+            return "null"
+        }
+        return text
     }
 
     /// Copies the grid JSON representation to the system pasteboard.
@@ -290,6 +325,8 @@ class GameManager: ObservableObject {
         // Persist clues for current size before changing anything
         rowCluesBySize[grid.rows] = rowClues
         columnCluesBySize[grid.columns] = columnClues
+
+        importedMetadata = [:]
 
         // Create new grid and clue arrays atomically
         let newGrid = PuzzleGrid(rows: rows, columns: columns)
@@ -403,7 +440,7 @@ class GameManager: ObservableObject {
     /// `PuzzleImportParser`). Filled cells become `.filled`, empty cells stay
     /// `.unmarked` so the puzzle remains editable and solvable. All clues are
     /// re-derived from the matrix, exactly as tap-editing does.
-    func importGrid(matrix: [[Int]]) {
+    func importGrid(matrix: [[Int]], metadata: [String: JSONValue]? = nil) {
         let rows = matrix.count
         let columns = matrix.first?.count ?? 0
         guard rows > 0, columns > 0 else { return }
@@ -425,6 +462,7 @@ class GameManager: ObservableObject {
         }
         rowCluesBySize[rows] = rowClues
         columnCluesBySize[columns] = columnClues
+        importedMetadata = metadata ?? [:]
 
         solvingRows = true
         progressMadeDuringSweep = false

@@ -54,19 +54,19 @@ struct ContentView: View {
                                 .textFieldStyle(.roundedBorder)
                                 .frame(width: 250)
 
-                            Button("Export for iOS App") {
-                                exportDocument = PuzzleJSONDocument(text: manager.iosExportJSON)
+                            Button("Export JSON") {
+                                exportDocument = PuzzleJSONDocument(text: manager.exportJSON)
                                 showingExporter = true
                             }
                             .frame(width: 250)
                             .buttonStyle(.borderedProminent)
-                            .tint(manager.canExportForIOS ? .green : .gray)
-                            .disabled(!manager.canExportForIOS)
+                            .tint(manager.canExport ? .green : .gray)
+                            .disabled(!manager.canExport)
                             .fileExporter(
                                 isPresented: $showingExporter,
                                 document: exportDocument,
                                 contentType: .json,
-                                defaultFilename: manager.iosExportFilename
+                                defaultFilename: manager.exportFilename
                             ) { _ in
                                 exportDocument = nil
                             }
@@ -75,16 +75,19 @@ struct ContentView: View {
                             // the difficulty thresholds can be calibrated
                             // against real puzzles rather than guessed at.
                             VStack(spacing: 2) {
-                                if let blocker = manager.iosExportBlocker {
+                                if let blocker = manager.exportBlocker {
                                     Text(blocker)
                                         .foregroundColor(.orange)
+                                } else if manager.lineSolverVerified {
+                                    Text("solver: UNIQUE")
                                 } else {
-                                    Text("id: \(manager.iosPuzzleID)")
+                                    Text("solver: unverified — clear the board and solve")
+                                        .foregroundColor(.secondary)
                                 }
                                 if manager.difficultyIsMeasured {
                                     Text("difficulty: \(manager.derivedDifficulty) — \(manager.solvingStepCount) steps, \(String(format: "%.1f", manager.solverSweeps)) sweeps")
                                 } else {
-                                    Text("difficulty: medium (unverified — solve to measure)")
+                                    Text("difficulty: \(exportDifficultyText) (not measured)")
                                         .foregroundColor(.secondary)
                                 }
                             }
@@ -376,8 +379,14 @@ struct ContentView: View {
         }
     }
 
+    /// The difficulty an export will carry before a solve has measured one.
+    private var exportDifficultyText: String {
+        if case .string(let difficulty) = manager.exportMetadata["difficulty"] { return difficulty }
+        return GameManager.mediumDifficulty
+    }
+
     private func load(_ puzzle: PuzzleImportParser.ImportedPuzzle) {
-        manager.importGrid(matrix: puzzle.matrix)
+        manager.importGrid(matrix: puzzle.matrix, metadata: puzzle.metadata)
         // Carrying the name through keeps a round trip through the editor
         // from silently dropping the puzzle's identity on re-export.
         if let name = puzzle.name, !name.isEmpty {

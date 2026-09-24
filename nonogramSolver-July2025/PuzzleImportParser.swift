@@ -4,10 +4,11 @@ import Foundation
 /// nonogramImageCreator/docs/json-format.md):
 ///
 /// - a bare 0/1 matrix,
-/// - a creator export object, whose "matrix" key holds a 0/1 grid,
+/// - a creator export object, whose "matrix" key holds a 0/1 grid — the
+///   authoring format this app also exports, so a puzzle round-trips through
+///   the editor with its name and `metadata` intact,
 /// - an iOS game `PuzzleSet`, whose "puzzles" array holds one or more objects
-///   keyed by "solution" — the same format this app now exports, so a puzzle
-///   round-trips through the editor unchanged.
+///   keyed by "solution".
 ///
 /// Clues in the file are ignored; the app re-derives them from the matrix,
 /// exactly as tap-editing does.
@@ -18,10 +19,13 @@ import Foundation
 struct PuzzleImportParser {
     /// One puzzle lifted out of a source file. `name` is carried through when
     /// the source format has one, so a set holding several puzzles can be
-    /// presented for selection by name rather than by index.
+    /// presented for selection by name rather than by index. `metadata` is a
+    /// creator export's free-form `metadata` object, kept whole so exporting
+    /// the puzzle again does not drop it; other formats have none.
     struct ImportedPuzzle: Equatable {
         let name: String?
         let matrix: [[Int]]
+        var metadata: [String: JSONValue]? = nil
     }
 
     enum ParseError: LocalizedError, Equatable {
@@ -56,6 +60,7 @@ struct PuzzleImportParser {
     private struct CreatorExport: Decodable {
         let matrix: [[Int]]
         let name: String?
+        let metadata: [String: JSONValue]?
     }
 
     private struct PuzzleSetFile: Decodable {
@@ -80,7 +85,7 @@ struct PuzzleImportParser {
             guard !set.puzzles.isEmpty else { return .failure(.emptySet) }
             candidates = set.puzzles.map { ImportedPuzzle(name: $0.name, matrix: $0.solution) }
         } else if let export = try? decoder.decode(CreatorExport.self, from: data) {
-            candidates = [ImportedPuzzle(name: export.name, matrix: export.matrix)]
+            candidates = [ImportedPuzzle(name: export.name, matrix: export.matrix, metadata: export.metadata)]
         } else {
             return .failure(.invalidJSON)
         }

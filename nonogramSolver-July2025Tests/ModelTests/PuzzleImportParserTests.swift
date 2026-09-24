@@ -127,4 +127,34 @@ final class PuzzleImportParserTests: XCTestCase {
 
         XCTAssertEqual(result[0].name, "marmot_5x5")
     }
+
+    func testCreatorExportCarriesItsMetadata() throws {
+        let json = """
+        {"name": "marmot_5x5", "matrix": \(validMatrix),
+         "metadata": {"createdBy": "Original puzzle design", "sourceNumber": 2, "unsureCells": 0,
+                      "aspectDistortionPercent": 4.2, "reviewed": true, "tags": ["animal", null]}}
+        """
+
+        let result = try XCTUnwrap(try? PuzzleImportParser.parsePuzzles(json).get())
+
+        XCTAssertEqual(result[0].metadata, [
+            "createdBy": .string("Original puzzle design"),
+            "sourceNumber": .integer(2),
+            "unsureCells": .integer(0),
+            "aspectDistortionPercent": .number(4.2),
+            "reviewed": .bool(true),
+            "tags": .array([.string("animal"), .null]),
+        ])
+    }
+
+    func testBareMatrixAndPuzzleSetCarryNoMetadata() throws {
+        let bare = try JSONEncoder().encode(validMatrix)
+        let set = try JSONSerialization.data(withJSONObject: [
+            "setName": "Testing",
+            "puzzles": [["id": "testing_x", "name": "X", "difficulty": "medium", "solution": validMatrix]],
+        ])
+
+        XCTAssertNil(try PuzzleImportParser.parsePuzzles(bare).get()[0].metadata)
+        XCTAssertNil(try PuzzleImportParser.parsePuzzles(set).get()[0].metadata)
+    }
 }
